@@ -1,3 +1,8 @@
+import { Wallet } from "ethers";
+import { SessionTypes } from "@walletconnect/types";
+import Client from "@walletconnect/client";
+export type Dispatch<T = any> = React.Dispatch<React.SetStateAction<T>>;
+
 export interface IContext {
     loading: boolean;
     chains: string[];
