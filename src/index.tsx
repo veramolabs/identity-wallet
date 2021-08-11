@@ -8,6 +8,7 @@ import { Identity } from "./screens/Identity";
 import { navigationRef } from "./navigation";
 import { Scanner } from "./screens/Scanner";
 import { ContextProvider } from "./context";
+import { BankId } from "./screens/BankId";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -24,6 +25,11 @@ function Tabs() {
                 name="Identity"
                 component={Identity}
                 options={{ title: "Identitet" }}
+            />
+            <Tab.Screen
+                name="BankId"
+                component={BankId}
+                options={{ title: "BankID" }}
             />
         </Tab.Navigator>
     );

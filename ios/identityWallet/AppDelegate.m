@@ -1,5 +1,11 @@
 #import "AppDelegate.h"
 
+// FIX START - https://github.com/facebook/react-native/issues/16376
+#if RCT_DEV
+#import <React/RCTDevLoadingView.h>
+#endif
+// FIX END
+
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -31,7 +37,14 @@ static void InitializeFlipper(UIApplication *application) {
   InitializeFlipper(application);
 #endif
 
+
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  // FIX START - https://github.com/facebook/react-native/issues/16376
+   #if RCT_DEV
+   [bridge moduleForClass:[RCTDevLoadingView class]];
+  #endif
+  // FIX END
+
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"identityWallet"
                                             initialProperties:nil];
