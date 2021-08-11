@@ -24,9 +24,9 @@ export const INITIAL_CONTEXT: IContext = {
     wallet: undefined,
     client: undefined,
     proposal: undefined,
-    setProposal: () => { },
+    setProposal: () => {},
     request: undefined,
-    setRequest: () => { },
-    onApprove: async () => { },
-    onReject: async () => { },
+    setRequest: () => {},
+    onApprove: async () => {},
+    onReject: async () => {},
 };

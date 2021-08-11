@@ -1,13 +1,13 @@
 import React from "react";
 import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 
-export const Identity = () => {
+export const Scanner = () => {
     return (
         <>
             <StatusBar />
             <SafeAreaView style={styles.container}>
                 <View style={styles.actionContainer}>
-                    <Text>Min Id</Text>
+                    <Text>Scanner here</Text>
                 </View>
             </SafeAreaView>
         </>
