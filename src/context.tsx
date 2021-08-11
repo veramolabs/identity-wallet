@@ -16,3 +16,17 @@ export interface IContext {
     onApprove: () => Promise<void>;
     onReject: () => Promise<void>;
 }
+
+export const INITIAL_CONTEXT: IContext = {
+    loading: false,
+    chains: [],
+    accounts: [],
+    wallet: undefined,
+    client: undefined,
+    proposal: undefined,
+    setProposal: () => { },
+    request: undefined,
+    setRequest: () => { },
+    onApprove: async () => { },
+    onReject: async () => { },
+};

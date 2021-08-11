@@ -1,4 +1,5 @@
 // Shims
+import "react-native-gesture-handler";
 
 // Import the crypto getRandomValues shim (**BEFORE** the shims)
 import "react-native-get-random-values";
