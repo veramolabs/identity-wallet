@@ -9,7 +9,7 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "clear": "watchman watch-del-all && rm -rf $TMPDIR/react-* && rm -rf $TMPDIR/metro-* && rm -rf $TMPDIR/haste-map-*",
-    "postinstall": "rn-nodeify --hack --install crypto"
+    "postinstall": "rn-nodeify --hack --install crypto && cd ios && pod install"
   },
   "dependencies": {
     "@ethersproject/shims": "^5.4.0",
