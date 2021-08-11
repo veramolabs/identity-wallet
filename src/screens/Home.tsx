@@ -1,24 +1,31 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
+    ActivityIndicator,
     Button,
     SafeAreaView,
     StatusBar,
     StyleSheet,
     View,
 } from "react-native";
+import { Context } from "../context";
 import { navigate } from "./../navigation";
 
 export const Home = () => {
+    const { loading } = useContext(Context);
     return (
         <>
             <StatusBar />
             <SafeAreaView style={styles.container}>
-                <View style={styles.actionContainer}>
-                    <Button
-                        title="Scan QR"
-                        onPress={() => navigate("Scanner")}
-                    />
-                </View>
+                {loading ? (
+                    <ActivityIndicator size="large" />
+                ) : (
+                    <View style={styles.actionContainer}>
+                        <Button
+                            title="Scan QR"
+                            onPress={() => navigate("Scanner")}
+                        />
+                    </View>
+                )}
             </SafeAreaView>
         </>
     );

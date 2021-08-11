@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Identity } from "./screens/Identity";
 import { navigationRef } from "./navigation";
 import { Scanner } from "./screens/Scanner";
+import { ContextProvider } from "./context";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -30,25 +31,27 @@ function Tabs() {
 
 const App = () => {
     return (
-        <NavigationContainer ref={navigationRef}>
-            <Stack.Navigator>
-                <Stack.Screen
-                    name="Tabs"
-                    component={Tabs}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Home"
-                    component={Home}
-                    options={{ title: "Symfoni Identity Wallet" }}
-                />
-                <Stack.Screen
-                    name="Scanner"
-                    component={Scanner}
-                    options={{ title: "Scan QR" }}
-                />
-            </Stack.Navigator>
-        </NavigationContainer>
+        <ContextProvider>
+            <NavigationContainer ref={navigationRef}>
+                <Stack.Navigator>
+                    <Stack.Screen
+                        name="Tabs"
+                        component={Tabs}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name="Home"
+                        component={Home}
+                        options={{ title: "Symfoni Identity Wallet" }}
+                    />
+                    <Stack.Screen
+                        name="Scanner"
+                        component={Scanner}
+                        options={{ title: "Scan QR" }}
+                    />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </ContextProvider>
     );
 };
 
