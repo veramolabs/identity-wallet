@@ -65,6 +65,7 @@ export const ContextProvider = (props: any) => {
                     chains: ["eip155:421611"],
                     storage,
                 });
+                console.log(await _wallet.getAccounts());
                 setTimeout(() => {
                     setLoading(false);
                 }, 500);
