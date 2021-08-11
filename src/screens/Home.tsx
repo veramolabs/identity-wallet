@@ -6,6 +6,7 @@ import {
     StyleSheet,
     View,
 } from "react-native";
+import { navigate } from "./../navigation";
 
 export const Home = () => {
     return (
@@ -15,7 +16,7 @@ export const Home = () => {
                 <View style={styles.actionContainer}>
                     <Button
                         title="Scan QR"
-                        onPress={() => console.log("Go to WC scan")}
+                        onPress={() => navigate("Scanner")}
                     />
                 </View>
             </SafeAreaView>
