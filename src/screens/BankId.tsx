@@ -1,8 +1,10 @@
-import React, { useEffect } from "react";
-import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
-import { WebView } from "react-native-webview";
+import React, { useEffect, useState } from "react";
+import { Text } from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
+import { BankidWebview } from "../components/bankid/BankidWebview";
 
 export const BankId = () => {
+    const [bankidToken, setBankidToken] = useState<string>();
     useEffect(() => {
         console.log("Fnr", `11126138727`);
         console.log("Fnr", `14102123973`);
@@ -17,13 +19,15 @@ export const BankId = () => {
         <>
             <StatusBar />
             <SafeAreaView style={styles.container}>
-                <View style={styles.actionContainer}>
-                    <Text>BankID here</Text>
+                <View style={styles.bankidContainer}>
+                    {!bankidToken ? (
+                        <BankidWebview onSuccess={setBankidToken} />
+                    ) : (
+                        <View>
+                            <Text>Got bankidToken</Text>
+                        </View>
+                    )}
                 </View>
-                <WebView
-                    source={{ uri: "https://vg.no" }}
-                    style={{ marginTop: 20 }}
-                />
             </SafeAreaView>
         </>
     );
@@ -34,6 +38,11 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         justifyContent: "center",
+    },
+    bankidContainer: {
+        padding: 10,
+        flex: 1,
+        backgroundColor: "blue",
     },
     actionContainer: {
         flexDirection: "row",
