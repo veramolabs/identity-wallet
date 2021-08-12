@@ -21,7 +21,10 @@ export const BankId = () => {
             <SafeAreaView style={styles.container}>
                 <View style={styles.bankidContainer}>
                     {!bankidToken ? (
-                        <BankidWebview onSuccess={setBankidToken} />
+                        <BankidWebview
+                            onSuccess={setBankidToken}
+                            onError={(reason) => setBankidToken(undefined)}
+                        />
                     ) : (
                         <View>
                             <Text>Got bankidToken</Text>

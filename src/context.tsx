@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Wallet } from "caip-wallet";
 import { KeyValueStorage } from "keyvaluestorage";
 import React, { createContext, useEffect, useState } from "react";
+import { VeramoProvider } from "./components/veramo/VeramoContext";
 
 export type Dispatch<T = any> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -95,7 +96,11 @@ export const ContextProvider = (props: any) => {
 
     // pass the value in provider and return
     return (
-        <Context.Provider value={context}>{props.children}</Context.Provider>
+        <VeramoProvider>
+            <Context.Provider value={context}>
+                {props.children}
+            </Context.Provider>
+        </VeramoProvider>
     );
 };
 
