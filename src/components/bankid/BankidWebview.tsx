@@ -51,9 +51,7 @@ export const BankidWebview: React.FC<Props> = ({ ...props }) => {
     const handleBankidWebview = (data: any) => {
         if (data.url && typeof data.url === "string") {
             if (data.url.includes("id_token")) {
-                console.log("Got URL", data);
                 let url = new URL(data.url);
-                console.log(url);
                 let id_token = url.searchParams.get("id_token");
                 if (typeof id_token === "string") {
                     props.onSuccess(id_token);
