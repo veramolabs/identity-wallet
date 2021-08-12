@@ -6,7 +6,7 @@ import { Home } from "./screens/Home";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Identity } from "./screens/Identity";
 import { navigationRef } from "./navigation";
-import { Scanner } from "./screens/Scanner";
+import { ScannerPage } from "./screens/Scanner";
 import { ContextProvider } from "./context";
 import { BankId } from "./screens/BankId";
 
@@ -52,7 +52,7 @@ const App = () => {
                     />
                     <Stack.Screen
                         name="Scanner"
-                        component={Scanner}
+                        component={ScannerPage}
                         options={{ title: "Scan QR" }}
                     />
                 </Stack.Navigator>

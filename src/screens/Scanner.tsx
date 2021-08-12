@@ -1,14 +1,13 @@
 import React from "react";
 import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { Scanner } from "./../components/scanner/Scanner";
 
-export const Scanner = () => {
+export const ScannerPage = () => {
     return (
         <>
             <StatusBar />
             <SafeAreaView style={styles.container}>
-                <View style={styles.actionContainer}>
-                    <Text>Scanner here</Text>
-                </View>
+                <Scanner />
             </SafeAreaView>
         </>
     );
