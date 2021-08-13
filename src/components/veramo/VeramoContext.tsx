@@ -13,7 +13,7 @@ import { IDataStoreORM } from "@veramo/data-store";
 import { createContext, useEffect, useState } from "react";
 // TypeORM is installed with `@veramo/data-store`
 import { Connection } from "typeorm";
-import { getDbConnection, initAgent } from "./VeramoUtils";
+import { agent } from "./VeramoUtils";
 
 export type Agent = TAgent<
     IDIDManager &
@@ -36,23 +36,13 @@ export const VeramoContext = createContext<IVeramoProvider>(INITIAL_CONTEXT);
 
 export const VeramoProvider = ({ ...props }) => {
     const [loading, setLoading] = useState(true);
-    const [agent, setAgent] = useState<Agent | undefined>(
-        INITIAL_CONTEXT.agent,
-    );
-    const [dbConnection, setDbConnection] = useState<Promise<Connection>>();
-    const [encrypted, setEncrypted] = useState(false);
+
     const [currentDID, setCurrentDID] = useState<string>();
 
     useEffect(() => {
         const doAsync = async () => {
-            const _dbConnection = getDbConnection("veramo-mobile.db.sqlite");
-            const _agent = await initAgent(_dbConnection, {
-                secretKey:
-                    "29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c",
-            });
-            setAgent(_agent);
-            setDbConnection(_dbConnection);
-            setLoading(false);
+            const identities = await agent.didManagerFind();
+            console.log(identities);
         };
         doAsync();
         return () => {

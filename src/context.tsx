@@ -96,11 +96,9 @@ export const ContextProvider = (props: any) => {
 
     // pass the value in provider and return
     return (
-        <VeramoProvider>
-            <Context.Provider value={context}>
-                {props.children}
-            </Context.Provider>
-        </VeramoProvider>
+        <Context.Provider value={context}>
+            <VeramoProvider>{props.children}</VeramoProvider>
+        </Context.Provider>
     );
 };
 
