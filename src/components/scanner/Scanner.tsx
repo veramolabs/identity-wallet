@@ -8,6 +8,8 @@ export const Scanner = () => {
     // const { client } = useContext(Context);
 
     async function onRead(data: any) {
+        console.log("Scanning");
+        console.log(data);
         if (typeof data !== "string") {
             return;
         }

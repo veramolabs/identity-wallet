@@ -6,9 +6,16 @@
 // import KeyValueStorage from "keyvaluestorage";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Client, { CLIENT_EVENTS } from "@walletconnect/client";
+import { SessionTypes } from "@walletconnect/types";
+
 import { Wallet } from "caip-wallet";
 import { KeyValueStorage } from "keyvaluestorage";
 import React, { createContext, useEffect, useState } from "react";
+import {
+    DEFAULT_APP_METADATA,
+    DEFAULT_RELAY_PROVIDER,
+} from "./constants/default";
 
 export type Dispatch<T = any> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -46,7 +53,7 @@ export const ContextProvider = (props: any) => {
     const [chains] = useState<string[]>(["eip155:421611"]);
     const [accounts, setAccounts] = useState<string[]>([]);
     const [wallet, setWallet] = useState<Wallet | undefined>(undefined);
-    // const [client, setClient] = useState<Client | undefined>(undefined);
+    const [client, setClient] = useState<Client | undefined>(undefined);
     // const [proposal, setProposal] = useState<SessionTypes.Proposal | undefined>(
     //     undefined,
     // );
@@ -76,7 +83,28 @@ export const ContextProvider = (props: any) => {
         initWallet();
     }, [chains]);
 
-    useEffect(() => {}, []);
+    useEffect(() => {
+        const initClient = async () => {
+            console.log(`Starting Client...`);
+            try {
+                const _client = await Client.init({
+                    controller: true,
+                    relayProvider: DEFAULT_RELAY_PROVIDER,
+                    metadata: DEFAULT_APP_METADATA,
+                    storageOptions: {
+                        asyncStorage: AsyncStorage as any,
+                    },
+                });
+                console.log("Client started!");
+                setClient(_client);
+                setLoading(false);
+            } catch (e) {
+                console.log("Failed to start Client!");
+                console.error(e);
+            }
+        };
+        initClient();
+    }, [wallet]);
 
     // Make the context object:
     const context: IContext = {
