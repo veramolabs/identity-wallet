@@ -9,6 +9,7 @@ import { navigationRef } from "./navigation";
 import { ScannerPage } from "./screens/Scanner";
 import { ContextProvider } from "./context";
 import { BankId } from "./screens/BankId";
+import Modal from "./screens/Modal";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,14 +42,14 @@ const App = () => {
             <NavigationContainer ref={navigationRef}>
                 <Stack.Navigator>
                     <Stack.Screen
-                        name="Tabs"
+                        name="Main"
                         component={Tabs}
                         options={{ headerShown: false }}
                     />
                     <Stack.Screen
-                        name="Home"
-                        component={Home}
-                        options={{ title: "Symfoni Identity Wallet" }}
+                        name="Modal"
+                        component={Modal}
+                        options={{ headerShown: false }}
                     />
                     <Stack.Screen
                         name="Scanner"

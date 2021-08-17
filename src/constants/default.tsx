@@ -23,6 +23,8 @@ export const DEFAULT_EIP155_METHODS = [
     "eth_sendTransaction",
     "personal_sign",
     "eth_signTypedData",
+    "eth_signTransaction",
+    "oracle_data",
 ];
 
 export const DEFAULT_LOGGER = "debug";
