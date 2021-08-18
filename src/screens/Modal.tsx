@@ -7,7 +7,7 @@ import { Context } from "../context";
 
 const Modal = () => {
     const { proposal, request, onApprove, onReject } = useContext(Context);
-    if (typeof proposal !== "undefined") {
+    if (proposal) {
         return (
             <Proposal
                 proposal={proposal}
@@ -15,7 +15,7 @@ const Modal = () => {
                 onReject={onReject}
             />
         );
-    } else if (typeof request !== "undefined") {
+    } else if (request) {
         return (
             <Request
                 request={request}

@@ -6,6 +6,7 @@ import { Context } from "./../../context";
 import { Button } from "./../ui/Button";
 import { Metadata } from "./../ui/Metadata";
 import { Blockchain } from "./../ui/Blockchain";
+import { ScrollView } from "react-native-gesture-handler";
 
 interface RequestProps {
     request: SessionTypes.RequestEvent;
@@ -42,7 +43,7 @@ export const Request = (props: RequestProps) => {
     }, [client, topic]);
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.title}>{"JSON-RPC Request"}</Text>
             {loading ? (
                 <View style={styles.sectionContainer}>
@@ -84,7 +85,7 @@ export const Request = (props: RequestProps) => {
                     </Text>
                 </View>
             )}
-        </View>
+        </ScrollView>
     );
 };
 

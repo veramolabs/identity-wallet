@@ -5,13 +5,16 @@
 
 // import KeyValueStorage from "keyvaluestorage";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
-import { formatJsonRpcError, formatJsonRpcResult } from "@json-rpc-tools/utils";
+import {
+    formatJsonRpcError,
+    formatJsonRpcResult,
+    JsonRpcError,
+    JsonRpcResponse,
+} from "@json-rpc-tools/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Client, { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
-import axios from "axios";
-
-import { Wallet } from "caip-wallet";
+import { ethers, Wallet } from "ethers";
 import { KeyValueStorage } from "keyvaluestorage";
 import React, { createContext, useEffect, useState } from "react";
 import {
@@ -36,6 +39,7 @@ export interface IContext {
     setRequest: Dispatch<SessionTypes.RequestEvent | undefined>;
     onApprove: () => Promise<void>;
     onReject: () => Promise<void>;
+    selectedChain: string;
 }
 
 export const INITIAL_CONTEXT: IContext = {
@@ -50,19 +54,21 @@ export const INITIAL_CONTEXT: IContext = {
     setRequest: () => {},
     onApprove: async () => {},
     onReject: async () => {},
+    selectedChain: undefined!,
 };
 export const Context = createContext<IContext>(INITIAL_CONTEXT);
 
 export const ContextProvider = (props: any) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [chains] = useState<string[]>(DEFAULT_TEST_CHAINS);
+    const [selectedChain, setSelectedChain] = useState(DEFAULT_TEST_CHAINS[0]);
     const [accounts, setAccounts] = useState<string[]>([]);
     const [wallet, setWallet] = useState<Wallet | undefined>(undefined);
     const [client, setClient] = useState<Client | undefined>(undefined);
     const [proposal, setProposal] = useState<SessionTypes.Proposal | undefined>(
         undefined,
     );
-    const [request, setRequest] = useState<
+    const [requestEvent, setRequest] = useState<
         SessionTypes.RequestEvent | undefined
     >(undefined);
 
@@ -72,13 +78,30 @@ export const ContextProvider = (props: any) => {
             const storage = new KeyValueStorage({
                 asyncStorage: AsyncStorage as any,
             });
-            const _wallet = await Wallet.init({
-                chains,
-                storage,
-            });
-            const _accounts = await _wallet.getAccounts();
+            const persistedMnemonic = await storage.getItem("mnemonic");
+            if (!persistedMnemonic) {
+                console.log("Did not find mnemonic, creating new one");
+                const newWallet = Wallet.createRandom();
+                await storage.setItem("mnemonic", newWallet.mnemonic.phrase);
+            }
+            const mnemonic = await storage.getItem("mnemonic");
+            if (!mnemonic) {
+                throw Error("Could not fetch mnemonic from async storage");
+            }
+            const _wallet = Wallet.fromMnemonic(mnemonic);
+
+            const address = await _wallet.getAddress();
+            const CAIPAddress = `${selectedChain}:${address}`;
+            const _accounts = [CAIPAddress];
+
             setAccounts(_accounts);
-            setWallet(_wallet);
+            setWallet(
+                _wallet.connect(
+                    new ethers.providers.JsonRpcProvider({
+                        url: "https://arbitrum-rinkeby.infura.io/v3/eaa35471bb7947adb685b17daa1030d4",
+                    }),
+                ),
+            );
             console.log(_accounts);
             // todo only test
             setTimeout(() => {
@@ -86,7 +109,7 @@ export const ContextProvider = (props: any) => {
             }, 500);
         };
         initWallet();
-    }, [chains]);
+    }, [selectedChain]);
 
     useEffect(() => {
         const initClient = async () => {
@@ -166,39 +189,14 @@ export const ContextProvider = (props: any) => {
                 client.on(
                     CLIENT_EVENTS.session.request,
                     async (requestEvent: SessionTypes.RequestEvent) => {
+                        console.log("Received request:", requestEvent);
                         if (typeof wallet === "undefined") {
                             throw new Error("Wallet is not initialized");
                         }
-                        const chainId = requestEvent.chainId || chains[0];
+
                         try {
-                            const [namespace] = chainId.split(":");
-                            const { data: jsonrpc } = await axios.get(
-                                `https://blockchain-api.xyz/api/jsonrpc/${namespace}`,
-                            );
-                            // TODO: needs improvement
-                            const requiresApproval =
-                                jsonrpc.methods.sign.includes(
-                                    requestEvent.request.method,
-                                );
-                            if (requiresApproval) {
-                                setRequest(requestEvent);
-                                navigate("Modal");
-                            } else {
-                                const result = await wallet.request(
-                                    requestEvent.request,
-                                    {
-                                        chainId,
-                                    },
-                                );
-                                const response = formatJsonRpcResult(
-                                    requestEvent.request.id,
-                                    result,
-                                );
-                                await client.respond({
-                                    topic: requestEvent.topic,
-                                    response,
-                                });
-                            }
+                            setRequest(requestEvent);
+                            navigate("Modal");
                         } catch (e) {
                             const response = formatJsonRpcError(
                                 requestEvent.request.id,
@@ -242,7 +240,7 @@ export const ContextProvider = (props: any) => {
                 console.error(e);
             }
             setProposal(undefined);
-        } else if (typeof request !== "undefined") {
+        } else if (typeof requestEvent !== "undefined") {
             try {
                 if (typeof client === "undefined") {
                     return;
@@ -250,16 +248,29 @@ export const ContextProvider = (props: any) => {
                 if (typeof wallet === "undefined") {
                     return;
                 }
-                const chainId = request.chainId || chains[0];
-                const result = await wallet.request(request.request, {
-                    chainId,
-                });
-                const response = formatJsonRpcResult(
-                    request.request.id,
-                    result,
-                );
+                const chainId = requestEvent.chainId || chains[0];
+
+                //Default error
+                let response: JsonRpcError | JsonRpcResponse =
+                    formatJsonRpcError(
+                        requestEvent.request.id,
+                        "Unrecognised method not supported " +
+                            requestEvent.request.method,
+                    );
+
+                if (requestEvent.request.method === "eth_signTransaction") {
+                    const result = await wallet.signTransaction(
+                        requestEvent.request.params[0],
+                    );
+
+                    response = formatJsonRpcResult(
+                        requestEvent.request.id,
+                        result,
+                    );
+                }
+
                 await client.respond({
-                    topic: request.topic,
+                    topic: requestEvent.topic,
                     response,
                 });
             } catch (e) {
@@ -281,17 +292,17 @@ export const ContextProvider = (props: any) => {
                 console.error(e);
             }
             setProposal(undefined);
-        } else if (typeof request !== "undefined") {
+        } else if (typeof requestEvent !== "undefined") {
             try {
                 if (typeof client === "undefined") {
                     return;
                 }
                 const response = formatJsonRpcError(
-                    request.request.id,
+                    requestEvent.request.id,
                     "User Rejected Request",
                 );
                 await client.respond({
-                    topic: request.topic,
+                    topic: requestEvent.topic,
                     response,
                 });
             } catch (e) {
@@ -311,10 +322,11 @@ export const ContextProvider = (props: any) => {
         client,
         proposal,
         setProposal,
-        request,
+        request: requestEvent,
         setRequest,
         onApprove,
         onReject,
+        selectedChain,
     };
 
     // pass the value in provider and return

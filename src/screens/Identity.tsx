@@ -1,5 +1,6 @@
 import React from "react";
 import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { WalletInfo } from "../components/ui/WalletInfo";
 
 export const Identity = () => {
     return (
@@ -7,7 +8,7 @@ export const Identity = () => {
             <StatusBar />
             <SafeAreaView style={styles.container}>
                 <View style={styles.actionContainer}>
-                    <Text>Min Id</Text>
+                    <WalletInfo />
                 </View>
             </SafeAreaView>
         </>
@@ -21,6 +22,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     actionContainer: {
+        flex: 1,
         flexDirection: "row",
         alignSelf: "center",
     },
