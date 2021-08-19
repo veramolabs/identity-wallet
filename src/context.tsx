@@ -189,22 +189,22 @@ export const ContextProvider = (props: any) => {
 
                 client.on(
                     CLIENT_EVENTS.session.request,
-                    async (requestEvent: SessionTypes.RequestEvent) => {
-                        console.log("Received request:", requestEvent);
+                    async (_requestEvent: SessionTypes.RequestEvent) => {
+                        console.log("Received request:", _requestEvent);
                         if (typeof wallet === "undefined") {
                             throw new Error("Wallet is not initialized");
                         }
 
                         try {
-                            setRequest(requestEvent);
+                            setRequest(_requestEvent);
                             navigate("Modal");
                         } catch (e) {
                             const response = formatJsonRpcError(
-                                requestEvent.request.id,
+                                _requestEvent.request.id,
                                 e.message
                             );
                             await client.respond({
-                                topic: requestEvent.topic,
+                                topic: _requestEvent.topic,
                                 response,
                             });
                         }
