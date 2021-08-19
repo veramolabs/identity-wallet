@@ -41,7 +41,7 @@ export const Identity = () => {
                     />
                 </View>
                 {ids.map((id) => {
-                    return <Text>{id.did}</Text>;
+                    return <Text key={id.did}>{id.did}</Text>;
                 })}
             </SafeAreaView>
         </>
