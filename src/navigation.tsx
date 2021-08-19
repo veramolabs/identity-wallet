@@ -10,7 +10,7 @@ import { BankId } from "./screens/BankId";
 import { Home } from "./screens/Home";
 import { Identity } from "./screens/Identity";
 import Modal from "./screens/Modal";
-import { ScannerScreen } from "./screens/Scanner";
+import { ScannerScreen } from "./screens/ScannerScreen";
 
 export const navigationRef = React.createRef<any>();
 

@@ -154,6 +154,7 @@ export const ContextProvider = (props: any) => {
                 client.on(
                     CLIENT_EVENTS.session.proposal,
                     (_proposal: SessionTypes.Proposal) => {
+                        console.log("Proposal", _proposal);
                         if (typeof client === "undefined") {
                             return;
                         }
