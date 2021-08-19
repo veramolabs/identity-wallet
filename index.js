@@ -1,11 +1,9 @@
 // Shims
 import "./shim";
+import "@zxing/text-encoding";
 import "react-native-gesture-handler";
-
-// // Import the crypto getRandomValues shim (**BEFORE** the shims)
 // import "react-native-get-random-values";
 
-// Import the the ethers shims (**BEFORE** ethers)
 import "@ethersproject/shims";
 
 import { AppRegistry } from "react-native";
@@ -16,3 +14,4 @@ import { LogBox } from "react-native";
 LogBox.ignoreLogs(["Require cycle:"]);
 
 AppRegistry.registerComponent(appName, () => App);
+// SQLite.enablePromise(true);

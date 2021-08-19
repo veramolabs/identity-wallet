@@ -24,6 +24,7 @@ import {
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
 import { goBack, navigate } from "./navigation";
+import { VeramoProvider } from "./components/veramo/VeramoContext";
 
 export type Dispatch<T = any> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -331,7 +332,9 @@ export const ContextProvider = (props: any) => {
 
     // pass the value in provider and return
     return (
-        <Context.Provider value={context}>{props.children}</Context.Provider>
+        <Context.Provider value={context}>
+            <VeramoProvider>{props.children}</VeramoProvider>
+        </Context.Provider>
     );
 };
 
