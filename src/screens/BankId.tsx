@@ -8,6 +8,7 @@ import { Context } from "../context";
 export const BankId = () => {
     const { wallet } = useContext(Context);
     const [bankidToken, setBankidToken] = useState<string>();
+
     useEffect(() => {
         console.log("Fnr", `11126138727`);
         console.log("Fnr", `14102123973`);
@@ -17,9 +18,14 @@ export const BankId = () => {
         console.log("One - time password", `otp`);
         console.log("Personal password", `qwer1234`);
     }, []);
+
     useEffect(() => {
         console.log("bankidToken => ", bankidToken);
     }, [bankidToken]);
+
+    const createVC = async () => {
+        // TODO Handle VC
+    };
 
     return (
         <>
