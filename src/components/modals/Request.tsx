@@ -20,7 +20,7 @@ export const Request = (props: RequestProps) => {
     const { onApprove, onReject } = props;
     const [loading, setLoading] = useState(false);
     const [metadata, setMetadata] = useState<AppMetadata | undefined>(
-        undefined,
+        undefined
     );
     const { topic, request, chainId } = props.request;
 

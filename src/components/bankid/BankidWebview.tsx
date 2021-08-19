@@ -6,8 +6,8 @@ import {
     BANKID_ACR_VALUES,
     BANKID_URL,
 } from "@env";
-import { StyleSheet, View } from "react-native";
-import { URL, URLSearchParams } from "react-native-url-polyfill";
+import { StyleSheet } from "react-native";
+import { URL } from "react-native-url-polyfill";
 
 interface Props {
     onSuccess: (bankidToken: string) => void;
@@ -48,7 +48,7 @@ export const BankidWebview: React.FC<Props> = ({ ...props }) => {
         return url;
     };
 
-    const handleBankidWebview = (data: any) => {
+    const handleWebviewStateChange = (data: any) => {
         if (data.url && typeof data.url === "string") {
             if (data.url.includes("id_token")) {
                 let url = new URL(data.url);
@@ -67,7 +67,7 @@ export const BankidWebview: React.FC<Props> = ({ ...props }) => {
             source={{ uri: bankidLoginURL() }}
             style={styles.webview}
             onMessage={(event) => console.log(event.nativeEvent.data)}
-            onNavigationStateChange={(data) => handleBankidWebview(data)}
+            onNavigationStateChange={(data) => handleWebviewStateChange(data)}
         />
     );
 };

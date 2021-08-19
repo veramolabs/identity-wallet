@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useContext } from "react";
 import { Text } from "react-native";
 import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
 import { BankidWebview } from "../components/bankid/BankidWebview";
+import { Context } from "../context";
 
 export const BankId = () => {
+    const { wallet } = useContext(Context);
     const [bankidToken, setBankidToken] = useState<string>();
     useEffect(() => {
         console.log("Fnr", `11126138727`);
@@ -14,6 +17,9 @@ export const BankId = () => {
         console.log("One - time password", `otp`);
         console.log("Personal password", `qwer1234`);
     }, []);
+    useEffect(() => {
+        console.log("bankidToken => ", bankidToken);
+    }, [bankidToken]);
 
     return (
         <>

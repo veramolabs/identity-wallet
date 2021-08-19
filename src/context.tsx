@@ -66,7 +66,7 @@ export const ContextProvider = (props: any) => {
     const [wallet, setWallet] = useState<Wallet | undefined>(undefined);
     const [client, setClient] = useState<Client | undefined>(undefined);
     const [proposal, setProposal] = useState<SessionTypes.Proposal | undefined>(
-        undefined,
+        undefined
     );
     const [requestEvent, setRequest] = useState<
         SessionTypes.RequestEvent | undefined
@@ -99,8 +99,8 @@ export const ContextProvider = (props: any) => {
                 _wallet.connect(
                     new ethers.providers.JsonRpcProvider({
                         url: "https://arbitrum-rinkeby.infura.io/v3/eaa35471bb7947adb685b17daa1030d4",
-                    }),
-                ),
+                    })
+                )
             );
             console.log(_accounts);
             // todo only test
@@ -163,7 +163,7 @@ export const ContextProvider = (props: any) => {
                                     return;
                                 }
                                 unsupportedChains.push(chainId);
-                            },
+                            }
                         );
                         if (unsupportedChains.length) {
                             return client.reject({ proposal: _proposal });
@@ -175,7 +175,7 @@ export const ContextProvider = (props: any) => {
                                     return;
                                 }
                                 unsupportedMethods.push(method);
-                            },
+                            }
                         );
                         console.log("unsupportedMethods", unsupportedMethods);
                         if (unsupportedMethods.length) {
@@ -183,7 +183,7 @@ export const ContextProvider = (props: any) => {
                         }
                         setProposal(_proposal);
                         navigate("Modal");
-                    },
+                    }
                 );
 
                 client.on(
@@ -200,14 +200,14 @@ export const ContextProvider = (props: any) => {
                         } catch (e) {
                             const response = formatJsonRpcError(
                                 requestEvent.request.id,
-                                e.message,
+                                e.message
                             );
                             await client.respond({
                                 topic: requestEvent.topic,
                                 response,
                             });
                         }
-                    },
+                    }
                 );
             } catch (e) {
                 console.log("Failed to subscribe Client!");
@@ -229,7 +229,7 @@ export const ContextProvider = (props: any) => {
                 const _accounts = accounts.filter((account) => {
                     const [namespace, reference] = account.split(":");
                     return proposal.permissions.blockchain.chains.includes(
-                        `${namespace}:${reference}`,
+                        `${namespace}:${reference}`
                     );
                 });
                 const response = {
@@ -255,17 +255,17 @@ export const ContextProvider = (props: any) => {
                     formatJsonRpcError(
                         requestEvent.request.id,
                         "Unrecognised method not supported " +
-                            requestEvent.request.method,
+                            requestEvent.request.method
                     );
 
                 if (requestEvent.request.method === "eth_signTransaction") {
                     const result = await wallet.signTransaction(
-                        requestEvent.request.params[0],
+                        requestEvent.request.params[0]
                     );
 
                     response = formatJsonRpcResult(
                         requestEvent.request.id,
-                        result,
+                        result
                     );
                 }
 
@@ -299,7 +299,7 @@ export const ContextProvider = (props: any) => {
                 }
                 const response = formatJsonRpcError(
                     requestEvent.request.id,
-                    "User Rejected Request",
+                    "User Rejected Request"
                 );
                 await client.respond({
                     topic: requestEvent.topic,

@@ -1,10 +1,6 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { ContextProvider } from "./context";
 import { Navigation } from "./navigation";
-import { BankId } from "./screens/BankId";
-import { Home } from "./screens/Home";
-import { Identity } from "./screens/Identity";
 
 const App = () => {
     return (
