@@ -10,7 +10,7 @@ import { ICredentialIssuer } from "@veramo/credential-w3c";
 // Storage plugin using TypeOrm
 import { IDataStoreORM } from "@veramo/data-store";
 import React, { createContext, useEffect, useState } from "react";
-import { agent } from "./VeramoUtils";
+import { agent as _agent } from "./VeramoUtils";
 
 export type Agent = TAgent<
     IDIDManager &
@@ -23,32 +23,36 @@ export type Agent = TAgent<
 
 export interface IVeramoProvider {
     // agent?: Agent;
+    // createIdentity: () => any;
 }
 
 const INITIAL_CONTEXT: IVeramoProvider = {
     // agent: undefined,
 };
 
-export const VeramoContext = createContext<IVeramoProvider>(INITIAL_CONTEXT);
+export const VeramoContext = createContext<IVeramoProvider | any>(
+    INITIAL_CONTEXT,
+);
 
 export const VeramoProvider = ({ ...props }) => {
     const [loading, setLoading] = useState(true);
 
     const [currentDID, setCurrentDID] = useState<string>();
+    const [agent] = useState<Agent>(_agent);
 
     useEffect(() => {
-        agent
-            .didManagerCreate({ kms: "local" })
-            .then((res) => console.log(res))
-            .catch((err) => console.error(err));
+        // agent
+        //     .didManagerCreate({ kms: "local" })
+        //     .then((res) => console.log(res))
+        //     .catch((err) => console.error(err));
     }, []);
 
-    // const createIdentity = async () => {
-    //     const identity = await agent.didManagerCreate({
-    //         kms: "local",
-    //     });
-    //     return identity;
-    // };
+    const createIdentity = async () => {
+        const identity = await agent.didManagerCreate({
+            kms: "local",
+        });
+        return identity;
+    };
 
     // const listIdentities = async () => {
     //     const identifiers = await agent.didManagerFind();
@@ -259,7 +263,8 @@ export const VeramoProvider = ({ ...props }) => {
     //     }
     // };
     const context = {
-        // agent,
+        agent,
+        createIdentity,
     };
     return (
         <VeramoContext.Provider value={context}>
