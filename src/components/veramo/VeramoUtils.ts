@@ -54,8 +54,8 @@ const agentConfig = {
             store: new KeyStore(
                 dbConnection,
                 new SecretBox(
-                    "29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c",
-                ),
+                    "29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c"
+                )
             ),
             kms: {
                 local: new KeyManagementSystem(),

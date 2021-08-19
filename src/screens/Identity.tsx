@@ -1,5 +1,3 @@
-import React from "react";
-import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 import { WalletInfo } from "../components/ui/WalletInfo";
 import React, { useContext, useState } from "react";
 import { useEffect } from "react";

@@ -31,7 +31,7 @@ const INITIAL_CONTEXT: IVeramoProvider = {
 };
 
 export const VeramoContext = createContext<IVeramoProvider | any>(
-    INITIAL_CONTEXT,
+    INITIAL_CONTEXT
 );
 
 export const VeramoProvider = ({ ...props }) => {
