@@ -30,12 +30,18 @@ export const Scanner = () => {
     }
 
     async function onTextInput(uri: string) {
-        if (!uri.startsWith("wc:")) {
-            return;
-        }
-        console.log("Received URI from input: ", uri);
-        if (client) {
-            await client.pair({ uri: uri });
+        try {
+            if (!uri.startsWith("wc:")) {
+                return;
+            }
+            console.log("Received URI from input: ", uri);
+            if (!client) {
+                throw Error("WalletConnect client not initialized");
+            }
+            const pairResult = await client.pair({ uri: uri });
+            console.debug("pairResult", pairResult);
+        } catch (error) {
+            throw error;
         }
     }
 
