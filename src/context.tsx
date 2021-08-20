@@ -106,31 +106,24 @@ export const ContextProvider = (props: any) => {
             }
             return identifiers[0];
         };
+        const initVeramo = async () => {
+            const getPrivateKey = () => {
+                const pk = identity.keys.find((key) => {
+                    return key.type === "Secp256k1";
+                })?.privateKeyHex;
+                if (!pk) {
+                    throw Error("No Secp256k1 key generated from Veramo.");
+                }
+                console.log("PK => ", pk);
+                // TODO This private key is encrypted
+                return pk;
+            };
+            const identity = await getIdentity();
+            const pk = getPrivateKey();
+        };
         const initWallet = async () => {
-            // const db = await SQLite.openDatabase({
-            //     name: "veramo.ios.sqlite",
-            //     location: "default",
-            // });
-            // db.transaction((tx) => {
-            //     tx.executeSql(
-            //         "SELECT * FROM information_schema.tables;",
-            //         [],
-            //         (result) => console.log("result2", result)
-            //     );
-            // });
-            // console.log("DB , ", db);
-
             console.log(`Starting Wallet...`);
 
-            const identity = await getIdentity();
-            console.log(identity);
-            const privateKey = identity.keys.find((key) => {
-                return key.type === "Secp256k1";
-            })?.privateKeyHex;
-            if (!privateKey) {
-                throw Error("No Secp256k1 key generated from Veramo.");
-            }
-            console.log("PK => ", privateKey);
             // TODO PK is encrypted
             // const _wallet = new Wallet(privateKey);
             const _wallet = Wallet.createRandom();
@@ -154,8 +147,8 @@ export const ContextProvider = (props: any) => {
 
     useEffect(() => {
         const initClient = async () => {
-            console.log(`Starting Client...`);
             try {
+                console.log(`Starting Client...`);
                 // await AsyncStorage.clear();
                 const _client = await Client.init({
                     controller: true,
@@ -167,7 +160,6 @@ export const ContextProvider = (props: any) => {
                 });
                 console.log("Client started!");
                 setClient(_client);
-                setLoading(false);
             } catch (e) {
                 console.log("Failed to start Client!");
                 console.error(e);
@@ -182,16 +174,11 @@ export const ContextProvider = (props: any) => {
     useEffect(() => {
         const subscribeClient = async () => {
             try {
-                if (!client) {
-                    return;
-                }
-                if (!wallet) {
-                    return;
-                }
-                if (loading) {
-                    return;
-                }
                 console.log("Subscribing Client...");
+                if (!client || !wallet || !accounts) {
+                    return;
+                }
+                setLoading(false);
                 client.on(
                     CLIENT_EVENTS.session.proposal,
                     (_proposal: SessionTypes.Proposal) => {
@@ -228,7 +215,7 @@ export const ContextProvider = (props: any) => {
                         navigate("Modal");
                     }
                 );
-
+                console.log("Subscribed pruposal");
                 client.on(
                     CLIENT_EVENTS.session.request,
                     async (_requestEvent: SessionTypes.RequestEvent) => {
@@ -252,6 +239,7 @@ export const ContextProvider = (props: any) => {
                         }
                     }
                 );
+                console.log("Subscribed request");
             } catch (e) {
                 console.log("Failed to subscribe Client!");
                 console.error(e);
@@ -261,7 +249,7 @@ export const ContextProvider = (props: any) => {
         return () => {
             console.log("Destroyed subscribe");
         };
-    }, [client, wallet, chains, loading]);
+    }, [client, wallet, chains, accounts]);
 
     async function onApprove() {
         if (typeof proposal !== "undefined") {
