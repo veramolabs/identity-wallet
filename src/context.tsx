@@ -156,7 +156,7 @@ export const ContextProvider = (props: any) => {
         const initClient = async () => {
             console.log(`Starting Client...`);
             try {
-                await AsyncStorage.clear();
+                // await AsyncStorage.clear();
                 const _client = await Client.init({
                     controller: true,
                     relayProvider: DEFAULT_RELAY_PROVIDER,
