@@ -25,9 +25,9 @@ export const Identity = () => {
         getIds();
     };
 
-    useEffect(() => {
-        getIds();
-    });
+    // useEffect(() => {
+    //     getIds();
+    // });
 
     return (
         <>
