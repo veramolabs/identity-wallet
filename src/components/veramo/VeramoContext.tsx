@@ -1,4 +1,3 @@
-// Core interfaces
 import {
     IDataStore,
     IDIDManager,
@@ -7,7 +6,6 @@ import {
     TAgent,
 } from "@veramo/core";
 import { ICredentialIssuer } from "@veramo/credential-w3c";
-// Storage plugin using TypeOrm
 import { IDataStoreORM } from "@veramo/data-store";
 import React, { createContext, useEffect, useState } from "react";
 import { agent as _agent } from "./VeramoUtils";

@@ -32,11 +32,12 @@ import { KeyManagementSystem, SecretBox } from "@veramo/kms-local";
 // Core identity manager plugin
 import { MessageHandler } from "@veramo/message-handler";
 import { Resolver } from "did-resolver";
+import { ethers } from "ethers";
 import { getResolver as ethrDidResolver } from "ethr-did-resolver";
 // TypeORM is installed with `@veramo/data-store`
 import { createConnection } from "typeorm";
 
-const DEFAULT_DID_PROVIDER = "did:ethr:rinkeby";
+const DEFAULT_DID_PROVIDER = "did:ethr:arbitrumRinkeby";
 
 const dbConnection = createConnection({
     type: "react-native",
@@ -65,17 +66,23 @@ const agentConfig = {
             store: new DIDStore(dbConnection),
             defaultProvider: DEFAULT_DID_PROVIDER,
             providers: {
-                "did:ethr:rinkeby": new EthrDIDProvider({
+                "did:ethr:arbitrumRinkeby": new EthrDIDProvider({
                     defaultKms: "local",
                     network: "rinkeby",
-                    rpcUrl: "https://rinkeby.infura.io/v3/eaa35471bb7947adb685b17daa1030d4",
+                    rpcUrl: "https://arbitrum-rinkeby.infura.io/v3/d459cbc007fc49d2a44afbccc975e35c",
+                    registry: "0x15a3dC1229115D69eeba3Eb6d0Cc34F84670f4e8",
                 }),
             },
         }),
         new DIDResolverPlugin({
             resolver: new Resolver({
                 ...ethrDidResolver({
-                    infuraProjectId: "eaa35471bb7947adb685b17daa1030d4",
+                    provider: new ethers.providers.JsonRpcProvider({
+                        url: "https://arbitrum-rinkeby.infura.io/v3/d459cbc007fc49d2a44afbccc975e35c",
+                    }),
+                    registry: "0x15a3dC1229115D69eeba3Eb6d0Cc34F84670f4e8",
+                    chainId: 421611,
+                    name: "arbitrumRinkeby",
                 }),
             }),
         }),

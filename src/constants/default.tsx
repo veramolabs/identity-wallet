@@ -11,7 +11,7 @@ export const DEFAULT_TEST_CHAINS = ["eip155:421611"];
 
 export const DEFAULT_CHAINS = [...DEFAULT_MAIN_CHAINS, ...DEFAULT_TEST_CHAINS];
 
-export const DEFAULT_RELAY_PROVIDER = "wss://relay.walletconnect.org";
+export const DEFAULT_RELAY_PROVIDER = "wss://relay.walletconnect.org"; // "wss://localhost:5555"
 
 export const DEFAULT_EIP155_METHODS = [
     "eth_sendTransaction",

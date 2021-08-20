@@ -12,11 +12,20 @@ import {
     JsonRpcResponse,
 } from "@json-rpc-tools/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+    IDataStore,
+    IDIDManager,
+    IKeyManager,
+    IResolver,
+    TAgent,
+} from "@veramo/core";
+import { ICredentialIssuer } from "@veramo/credential-w3c";
+import { IDataStoreORM } from "@veramo/data-store";
 import Client, { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { ethers, Wallet } from "ethers";
-import { KeyValueStorage } from "keyvaluestorage";
 import React, { createContext, useEffect, useState } from "react";
+import { agent as _agent } from "./components/veramo/VeramoUtils";
 import {
     DEFAULT_APP_METADATA,
     DEFAULT_EIP155_METHODS,
@@ -24,8 +33,15 @@ import {
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
 import { goBack, navigate } from "./navigation";
-import { VeramoProvider } from "./components/veramo/VeramoContext";
 
+export type Agent = TAgent<
+    IDIDManager &
+        IKeyManager &
+        IDataStore &
+        IDataStoreORM &
+        IResolver &
+        ICredentialIssuer
+>;
 export type Dispatch<T = any> = React.Dispatch<React.SetStateAction<T>>;
 
 export interface IContext {
@@ -73,23 +89,51 @@ export const ContextProvider = (props: any) => {
         SessionTypes.RequestEvent | undefined
     >(undefined);
 
+    // Veramo
+    const [agent] = useState<Agent>(_agent);
+
     useEffect(() => {
+        const getIdentity = async () => {
+            const createIdentity = async () => {
+                const identity = await agent.didManagerCreate({
+                    kms: "Documents",
+                });
+                return identity;
+            };
+            const identifiers = await agent.didManagerFind();
+            if (identifiers.length === 0) {
+                return createIdentity();
+            }
+            return identifiers[0];
+        };
         const initWallet = async () => {
+            // const db = await SQLite.openDatabase({
+            //     name: "veramo.ios.sqlite",
+            //     location: "default",
+            // });
+            // db.transaction((tx) => {
+            //     tx.executeSql(
+            //         "SELECT * FROM information_schema.tables;",
+            //         [],
+            //         (result) => console.log("result2", result)
+            //     );
+            // });
+            // console.log("DB , ", db);
+
             console.log(`Starting Wallet...`);
-            const storage = new KeyValueStorage({
-                asyncStorage: AsyncStorage as any,
-            });
-            const persistedMnemonic = await storage.getItem("mnemonic");
-            if (!persistedMnemonic) {
-                console.log("Did not find mnemonic, creating new one");
-                const newWallet = Wallet.createRandom();
-                await storage.setItem("mnemonic", newWallet.mnemonic.phrase);
+
+            const identity = await getIdentity();
+            console.log(identity);
+            const privateKey = identity.keys.find((key) => {
+                return key.type === "Secp256k1";
+            })?.privateKeyHex;
+            if (!privateKey) {
+                throw Error("No Secp256k1 key generated from Veramo.");
             }
-            const mnemonic = await storage.getItem("mnemonic");
-            if (!mnemonic) {
-                throw Error("Could not fetch mnemonic from async storage");
-            }
-            const _wallet = Wallet.fromMnemonic(mnemonic);
+            console.log("PK => ", privateKey);
+            // TODO PK is encrypted
+            // const _wallet = new Wallet(privateKey);
+            const _wallet = Wallet.createRandom();
 
             const address = await _wallet.getAddress();
             const CAIPAddress = `${selectedChain}:${address}`;
@@ -103,19 +147,16 @@ export const ContextProvider = (props: any) => {
                     })
                 )
             );
-            console.log(_accounts);
-            // todo only test
-            setTimeout(() => {
-                setLoading(false);
-            }, 500);
+            console.log("Wallet started! Accounts => ", _accounts);
         };
         initWallet();
-    }, [selectedChain]);
+    }, [agent, selectedChain]);
 
     useEffect(() => {
         const initClient = async () => {
             console.log(`Starting Client...`);
             try {
+                await AsyncStorage.clear();
                 const _client = await Client.init({
                     controller: true,
                     relayProvider: DEFAULT_RELAY_PROVIDER,
@@ -333,9 +374,7 @@ export const ContextProvider = (props: any) => {
 
     // pass the value in provider and return
     return (
-        <Context.Provider value={context}>
-            <VeramoProvider>{props.children}</VeramoProvider>
-        </Context.Provider>
+        <Context.Provider value={context}>{props.children}</Context.Provider>
     );
 };
 
