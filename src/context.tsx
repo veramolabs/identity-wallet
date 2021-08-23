@@ -25,7 +25,10 @@ import Client, { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { ethers, Wallet } from "ethers";
 import React, { createContext, useEffect, useState } from "react";
-import { agent as _agent } from "./components/veramo/VeramoUtils";
+import {
+    agent as _agent,
+    deleteVeramoData,
+} from "./components/veramo/VeramoUtils";
 import {
     DEFAULT_APP_METADATA,
     DEFAULT_EIP155_METHODS,
@@ -33,7 +36,6 @@ import {
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
 import { goBack, navigate } from "./navigation";
-const SQLite = require("react-native-sqlite-storage");
 
 export type Agent = TAgent<
     IDIDManager &
@@ -58,6 +60,7 @@ export interface IContext {
     onReject: () => Promise<void>;
     selectedChain: string;
     provider: ethers.providers.Provider;
+    deleteVeramoData: () => void;
 }
 
 export const INITIAL_CONTEXT: IContext = {
@@ -73,6 +76,7 @@ export const INITIAL_CONTEXT: IContext = {
     onReject: async () => {},
     selectedChain: undefined!,
     provider: undefined!,
+    deleteVeramoData: deleteVeramoData,
 };
 export const Context = createContext<IContext>(INITIAL_CONTEXT);
 
@@ -99,40 +103,17 @@ export const ContextProvider = (props: any) => {
     const [agent] = useState<Agent>(_agent);
 
     useEffect(() => {
-        const db = SQLite.openDatabase(
-            {
-                name: "VERAMO_NAME",
-                // location: "default",
-            },
-            () => console.log("DB CONNECTED"),
-            (error: any) => console.log(error)
-        );
-        // console.log(db);
-        db.transaction((tx: any) => {
-            console.log("tx", tx);
-            tx.executeSql("SHOW TABLES", [], (tx: any, results: any) => {
-                console.log("LOL");
-                console.log(results);
-                var temp = [];
-                for (let i = 0; i < results.rows.length; ++i) {
-                    temp.push(results.rows.item(i));
-                }
-                console.log(temp);
-            });
-        });
-    }, []);
-
-    useEffect(() => {
         const getIdentity = async () => {
             try {
                 const createIdentity = async () => {
                     const identity = await agent.didManagerCreate({
                         kms: "local",
+                        provider: "did:ethr:eip155:421611",
                     });
                     return identity;
                 };
                 const identifiers = await agent.didManagerFind();
-                console.log("log", identifiers);
+                console.log("identifiers => ", identifiers);
                 if (identifiers.length === 0) {
                     return createIdentity();
                 }
@@ -143,7 +124,6 @@ export const ContextProvider = (props: any) => {
         };
         const initWallet = async () => {
             const identity = await getIdentity();
-            console.log("ID ?=> ", identity);
             if (!identity) {
                 throw Error("Identity Failed");
             }
@@ -376,6 +356,7 @@ export const ContextProvider = (props: any) => {
         onApprove,
         onReject,
         selectedChain,
+        deleteVeramoData,
     };
 
     // pass the value in provider and return

@@ -262,6 +262,8 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.0.3):
     - React-Core
+  - react-native-clipboard-plus (1.0.6):
+    - React
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (3.3.0):
@@ -417,6 +419,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-clipboard-plus (from `../node_modules/react-native-clipboard-plus`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
@@ -491,6 +494,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-clipboard-plus:
+    :path: "../node_modules/react-native-clipboard-plus"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -567,6 +572,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
   react-native-camera: a6055b8538d741b5ac221fa73c866c526010c8c9
+  react-native-clipboard-plus: 28d86b7be97febd217abb1af954b22b8c80c38bb
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-sqlite-storage: 418ef4afc5e6df6ce3574c4617e5f0b65cffde55

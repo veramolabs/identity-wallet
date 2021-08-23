@@ -38,8 +38,10 @@ import { getResolver as ethrDidResolver } from "ethr-did-resolver";
 import { createConnection } from "typeorm";
 
 // TODO : Must make default DID provider inherit from selected chain in context
-const CHAIN_ID = "eip155:421611";
-const DEFAULT_DID_PROVIDER = `did:ethr:${CHAIN_ID}`;
+const CHAIN_ID = "rinkeby";
+const DEFAULT_DID_PROVIDER = `did:ethr:eip155:421611`;
+
+const SQLite = require("react-native-sqlite-storage");
 
 const dbConnection = createConnection({
     type: "react-native",
@@ -50,6 +52,22 @@ const dbConnection = createConnection({
     entities: Entities,
     name: "VERAMO_NAME.sqlite.db",
 });
+
+// REVIEW - Dont see this working when deploying app.
+export const deleteVeramoData = () => {
+    SQLite.deleteDatabase({
+        name: "VERAMO_DATABASE.sqlite.db",
+        location: "default",
+    });
+    SQLite.deleteDatabase({
+        name: "VERAMO_DATABASE.sqlite.db-shm",
+        location: "default",
+    });
+    SQLite.deleteDatabase({
+        name: "VERAMO_DATABASE.sqlite.db-wal",
+        location: "default",
+    });
+};
 
 const agentConfig = {
     plugins: [
@@ -66,9 +84,9 @@ const agentConfig = {
         }),
         new DIDManager({
             store: new DIDStore(dbConnection),
-            defaultProvider: DEFAULT_DID_PROVIDER,
+            defaultProvider: "did:ethr:eip155:421611",
             providers: {
-                DEFAULT_DID_PROVIDER: new EthrDIDProvider({
+                "did:ethr:eip155:421611": new EthrDIDProvider({
                     defaultKms: "local",
                     network: "rinkeby",
                     rpcUrl: "https://arbitrum-rinkeby.infura.io/v3/d459cbc007fc49d2a44afbccc975e35c",
@@ -83,8 +101,8 @@ const agentConfig = {
                         url: "https://arbitrum-rinkeby.infura.io/v3/d459cbc007fc49d2a44afbccc975e35c",
                     }),
                     registry: "0x15a3dC1229115D69eeba3Eb6d0Cc34F84670f4e8",
-                    chainId: 421611,
-                    name: CHAIN_ID,
+                    // chainId: 421611,
+                    name: "did:ethr:eip155:421611",
                 }),
             }),
         }),
