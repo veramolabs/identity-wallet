@@ -48,7 +48,6 @@ export interface IContext {
     loading: boolean;
     chains: string[];
     accounts: string[];
-    wallet: Wallet | undefined;
     client: Client | undefined;
     proposal: SessionTypes.Proposal | undefined;
     setProposal: Dispatch<SessionTypes.Proposal | undefined>;
@@ -57,13 +56,13 @@ export interface IContext {
     onApprove: () => Promise<void>;
     onReject: () => Promise<void>;
     selectedChain: string;
+    provider: ethers.providers.Provider;
 }
 
 export const INITIAL_CONTEXT: IContext = {
     loading: false,
     chains: [],
     accounts: [],
-    wallet: undefined,
     client: undefined,
     proposal: undefined,
     setProposal: () => {},
@@ -72,6 +71,7 @@ export const INITIAL_CONTEXT: IContext = {
     onApprove: async () => {},
     onReject: async () => {},
     selectedChain: undefined!,
+    provider: undefined!,
 };
 export const Context = createContext<IContext>(INITIAL_CONTEXT);
 
@@ -80,8 +80,13 @@ export const ContextProvider = (props: any) => {
     const [chains] = useState<string[]>(DEFAULT_TEST_CHAINS);
     const [selectedChain, setSelectedChain] = useState(DEFAULT_TEST_CHAINS[0]);
     const [accounts, setAccounts] = useState<string[]>([]);
-    const [wallet, setWallet] = useState<Wallet | undefined>(undefined);
     const [client, setClient] = useState<Client | undefined>(undefined);
+    const [provider] = useState(
+        () =>
+            new ethers.providers.JsonRpcProvider({
+                url: "https://arbitrum-rinkeby.infura.io/v3/eaa35471bb7947adb685b17daa1030d4",
+            })
+    );
     const [proposal, setProposal] = useState<SessionTypes.Proposal | undefined>(
         undefined
     );
@@ -94,53 +99,43 @@ export const ContextProvider = (props: any) => {
 
     useEffect(() => {
         const getIdentity = async () => {
-            const createIdentity = async () => {
-                const identity = await agent.didManagerCreate({
-                    kms: "Documents",
-                });
-                return identity;
-            };
-            const identifiers = await agent.didManagerFind();
-            if (identifiers.length === 0) {
-                return createIdentity();
-            }
-            return identifiers[0];
-        };
-        const initVeramo = async () => {
-            const getPrivateKey = () => {
-                const pk = identity.keys.find((key) => {
-                    return key.type === "Secp256k1";
-                })?.privateKeyHex;
-                if (!pk) {
-                    throw Error("No Secp256k1 key generated from Veramo.");
+            try {
+                const createIdentity = async () => {
+                    const identity = await agent.didManagerCreate({
+                        kms: "local",
+                    });
+                    return identity;
+                };
+                const identifiers = await agent.didManagerFind();
+                console.log("log", identifiers);
+                if (identifiers.length === 0) {
+                    return createIdentity();
                 }
-                console.log("PK => ", pk);
-                // TODO This private key is encrypted
-                return pk;
-            };
-            const identity = await getIdentity();
-            const pk = getPrivateKey();
+                return identifiers[0];
+            } catch (error) {
+                console.error(error);
+            }
         };
         const initWallet = async () => {
-            console.log(`Starting Wallet...`);
-
-            // TODO PK is encrypted
-            // const _wallet = new Wallet(privateKey);
-            const _wallet = Wallet.createRandom();
-
-            const address = await _wallet.getAddress();
+            const identity = await getIdentity();
+            console.log("ID ?=> ", identity);
+            if (!identity) {
+                throw Error("Identity Failed");
+            }
+            const publicKey = identity.did.split(":").pop();
+            if (!publicKey) {
+                throw Error("No public key");
+            }
+            const address = ethers.utils.computeAddress(publicKey);
+            if (!address) {
+                throw Error("Address from identity not correct");
+            }
+            // const address = await _wallet.getAddress();
             const CAIPAddress = `${selectedChain}:${address}`;
             const _accounts = [CAIPAddress];
-
             setAccounts(_accounts);
-            setWallet(
-                _wallet.connect(
-                    new ethers.providers.JsonRpcProvider({
-                        url: "https://arbitrum-rinkeby.infura.io/v3/eaa35471bb7947adb685b17daa1030d4",
-                    })
-                )
-            );
-            console.log("Wallet started! Accounts => ", _accounts);
+
+            console.log("Accounts => ", _accounts);
         };
         initWallet();
     }, [agent, selectedChain]);
@@ -175,7 +170,7 @@ export const ContextProvider = (props: any) => {
         const subscribeClient = async () => {
             try {
                 console.log("Subscribing Client...");
-                if (!client || !wallet || !accounts) {
+                if (!client || !accounts) {
                     return;
                 }
                 setLoading(false);
@@ -219,11 +214,9 @@ export const ContextProvider = (props: any) => {
                 client.on(
                     CLIENT_EVENTS.session.request,
                     async (_requestEvent: SessionTypes.RequestEvent) => {
-                        console.log("Received request:", _requestEvent);
-                        if (typeof wallet === "undefined") {
-                            throw new Error("Wallet is not initialized");
+                        if (!agent) {
+                            throw Error("VeramoAgent not initialized");
                         }
-
                         try {
                             setRequest(_requestEvent);
                             navigate("Modal");
@@ -249,7 +242,7 @@ export const ContextProvider = (props: any) => {
         return () => {
             console.log("Destroyed subscribe");
         };
-    }, [client, wallet, chains, accounts]);
+    }, [client, chains, accounts, agent]);
 
     async function onApprove() {
         if (typeof proposal !== "undefined") {
@@ -274,10 +267,10 @@ export const ContextProvider = (props: any) => {
         } else if (typeof requestEvent !== "undefined") {
             try {
                 if (typeof client === "undefined") {
-                    return;
+                    throw Error("Client not initialized on requst.");
                 }
-                if (typeof wallet === "undefined") {
-                    return;
+                if (!agent) {
+                    throw Error("VeramoAgent not initialized on requst.");
                 }
                 const chainId = requestEvent.chainId || chains[0];
 
@@ -290,7 +283,7 @@ export const ContextProvider = (props: any) => {
                     );
 
                 if (requestEvent.request.method === "eth_signTransaction") {
-                    const result = await wallet.signTransaction(
+                    const result = await agent.keyManagerSignEthTX(
                         requestEvent.request.params[0]
                     );
 
@@ -349,8 +342,8 @@ export const ContextProvider = (props: any) => {
         loading,
         chains,
         accounts,
-        wallet,
         client,
+        provider,
         proposal,
         setProposal,
         request: requestEvent,

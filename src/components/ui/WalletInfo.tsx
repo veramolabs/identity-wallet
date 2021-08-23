@@ -4,27 +4,31 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { Context } from "./../../context";
 
 export const WalletInfo = () => {
-    const { accounts, wallet } = useContext(Context);
+    const { accounts, provider } = useContext(Context);
     const [balance, setBalance] = useState<BigNumber>(ethers.constants.Zero);
 
     useEffect(() => {
         const doAsync = async () => {
-            if (!wallet) {
-                return;
-            }
-            if (!accounts) {
+            if (!provider) {
                 return;
             }
 
             try {
-                const balance = await wallet.getBalance();
+                const address = accounts[0].split(":").pop();
+                if (!address) {
+                    throw Error(`Could not parse ${accounts[0]}`);
+                }
+                const isAddress = ethers.utils.computeAddress(address);
+                console.log("is Address => ", isAddress);
+
+                const balance = await provider.getBalance(address);
                 setBalance(balance);
             } catch (error) {
                 console.error(error.message);
             }
         };
         doAsync();
-    }, [accounts, wallet]);
+    }, [accounts, provider]);
 
     if (!accounts) {
         return <ActivityIndicator />;

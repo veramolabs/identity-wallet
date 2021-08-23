@@ -37,16 +37,18 @@ import { getResolver as ethrDidResolver } from "ethr-did-resolver";
 // TypeORM is installed with `@veramo/data-store`
 import { createConnection } from "typeorm";
 
-const DEFAULT_DID_PROVIDER = "did:ethr:arbitrumRinkeby";
+// TODO : Must make default DID provider inherit from selected chain in context
+const CHAIN_ID = "eip155:421611";
+const DEFAULT_DID_PROVIDER = `did:ethr:${CHAIN_ID}`;
 
 const dbConnection = createConnection({
     type: "react-native",
     location: "default",
-    database: "veramo.ios.sqlite",
+    database: "VERAMO_DATABASE.sqlite.db",
     synchronize: true,
     logging: ["error", "info", "warn"],
     entities: Entities,
-    name: "veramo.ios.sqlite",
+    name: "VERAMO_NAME.sqlite.db",
 });
 
 const agentConfig = {
@@ -66,7 +68,7 @@ const agentConfig = {
             store: new DIDStore(dbConnection),
             defaultProvider: DEFAULT_DID_PROVIDER,
             providers: {
-                "did:ethr:arbitrumRinkeby": new EthrDIDProvider({
+                DEFAULT_DID_PROVIDER: new EthrDIDProvider({
                     defaultKms: "local",
                     network: "rinkeby",
                     rpcUrl: "https://arbitrum-rinkeby.infura.io/v3/d459cbc007fc49d2a44afbccc975e35c",
@@ -82,7 +84,7 @@ const agentConfig = {
                     }),
                     registry: "0x15a3dC1229115D69eeba3Eb6d0Cc34F84670f4e8",
                     chainId: 421611,
-                    name: "arbitrumRinkeby",
+                    name: CHAIN_ID,
                 }),
             }),
         }),
