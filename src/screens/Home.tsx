@@ -5,13 +5,17 @@ import {
     SafeAreaView,
     StatusBar,
     StyleSheet,
+    Text,
     View,
 } from "react-native";
+import { Sessions } from "../components/modals/Sessions";
 import { Context } from "../context";
 import { navigate } from "./../navigation";
 
 export const Home = () => {
-    const { loading } = useContext(Context);
+    const { loading, client } = useContext(Context);
+    const sessions = client?.session.values;
+    const activeSessions = client?.session.values.length;
     return (
         <>
             <StatusBar />
@@ -24,6 +28,17 @@ export const Home = () => {
                             title="Scan QR"
                             onPress={() => navigate("Scanner")}
                         />
+                    </View>
+                )}
+                {sessions ? (
+                    <Sessions
+                        sessions={sessions}
+                        resetCard={() => {}}
+                        closeSession={() => {}}
+                    />
+                ) : (
+                    <View>
+                        <Text>""</Text>
                     </View>
                 )}
             </SafeAreaView>
