@@ -33,6 +33,7 @@ import {
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
 import { goBack, navigate } from "./navigation";
+const SQLite = require("react-native-sqlite-storage");
 
 export type Agent = TAgent<
     IDIDManager &
@@ -96,6 +97,30 @@ export const ContextProvider = (props: any) => {
 
     // Veramo
     const [agent] = useState<Agent>(_agent);
+
+    useEffect(() => {
+        const db = SQLite.openDatabase(
+            {
+                name: "VERAMO_NAME",
+                // location: "default",
+            },
+            () => console.log("DB CONNECTED"),
+            (error: any) => console.log(error)
+        );
+        // console.log(db);
+        db.transaction((tx: any) => {
+            console.log("tx", tx);
+            tx.executeSql("SHOW TABLES", [], (tx: any, results: any) => {
+                console.log("LOL");
+                console.log(results);
+                var temp = [];
+                for (let i = 0; i < results.rows.length; ++i) {
+                    temp.push(results.rows.item(i));
+                }
+                console.log(temp);
+            });
+        });
+    }, []);
 
     useEffect(() => {
         const getIdentity = async () => {

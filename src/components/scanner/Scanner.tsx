@@ -10,7 +10,6 @@ export const Scanner = () => {
     const { client } = useContext(Context);
 
     async function onRead(data: any) {
-        console.log("Scanning");
         console.log(data);
         if (typeof data !== "string") {
             return;
@@ -30,6 +29,7 @@ export const Scanner = () => {
     }
 
     async function onTextInput(uri: string) {
+        console.log("on text input");
         try {
             if (!uri.startsWith("wc:")) {
                 return;
@@ -61,6 +61,7 @@ export const Scanner = () => {
                 placeholder="Eller skriv WC kode her"
                 onChangeText={(text: string) => onTextInput(text)}
                 defaultValue={""}
+                showSoftInputOnFocus={false}
             />
             {/* TODO : Only for test */}
             <Button text="Reset storage" onPress={() => AsyncStorage.clear()} />
