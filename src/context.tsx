@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     IDataStore,
     IDIDManager,
+    IIdentifier,
     IKeyManager,
     IResolver,
     TAgent,
@@ -98,6 +99,7 @@ export const ContextProvider = (props: any) => {
     const [requestEvent, setRequest] = useState<
         SessionTypes.RequestEvent | undefined
     >(undefined);
+    const [identity, setIdentity] = useState<IIdentifier>();
 
     // Veramo
     const [agent] = useState<Agent>(_agent);
@@ -123,11 +125,11 @@ export const ContextProvider = (props: any) => {
             }
         };
         const initWallet = async () => {
-            const identity = await getIdentity();
-            if (!identity) {
+            const _identity = await getIdentity();
+            if (!_identity) {
                 throw Error("Identity Failed");
             }
-            const publicKey = identity.did.split(":").pop();
+            const publicKey = _identity.did.split(":").pop();
             if (!publicKey) {
                 throw Error("No public key");
             }
@@ -139,7 +141,7 @@ export const ContextProvider = (props: any) => {
             const CAIPAddress = `${selectedChain}:${address}`;
             const _accounts = [CAIPAddress];
             setAccounts(_accounts);
-
+            setIdentity(_identity);
             console.log("Accounts => ", _accounts);
         };
         initWallet();
@@ -287,11 +289,18 @@ export const ContextProvider = (props: any) => {
                             requestEvent.request.method
                     );
 
+                const kid = identity?.keys[0].kid;
+                if (!kid) {
+                    throw Error("Could not resolve Veramo KID");
+                }
+                const tx = requestEvent.request.params[0];
+                delete tx.from;
                 if (requestEvent.request.method === "eth_signTransaction") {
-                    const result = await agent.keyManagerSignEthTX(
-                        requestEvent.request.params[0]
-                    );
-
+                    const result = await agent.keyManagerSignEthTX({
+                        kid: kid,
+                        transaction: tx,
+                    });
+                    console.log("Sign result", result);
                     response = formatJsonRpcResult(
                         requestEvent.request.id,
                         result
