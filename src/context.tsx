@@ -26,6 +26,7 @@ import Client, { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { ethers, Wallet } from "ethers";
 import React, { createContext, useEffect, useState } from "react";
+import { useCallback } from "react";
 import {
     agent as _agent,
     deleteVeramoData,
@@ -100,10 +101,9 @@ export const ContextProvider = (props: any) => {
         SessionTypes.RequestEvent | undefined
     >(undefined);
     const [identity, setIdentity] = useState<IIdentifier>();
-
-    // Veramo
     const [agent] = useState<Agent>(_agent);
 
+    // Init Veramo identity
     useEffect(() => {
         const getIdentity = async () => {
             try {
@@ -151,7 +151,6 @@ export const ContextProvider = (props: any) => {
         const initClient = async () => {
             try {
                 console.log(`Starting Client...`);
-                // await AsyncStorage.clear();
                 const _client = await Client.init({
                     controller: true,
                     relayProvider: DEFAULT_RELAY_PROVIDER,
@@ -173,83 +172,46 @@ export const ContextProvider = (props: any) => {
         };
     }, []);
 
-    useEffect(() => {
-        const subscribeClient = async () => {
-            try {
-                console.log("Subscribing Client...");
-                if (!client || !accounts) {
+    const handlePruposal = useCallback(
+        (_proposal: SessionTypes.Proposal) => {
+            console.log("Proposal", _proposal);
+            if (typeof client === "undefined") {
+                return;
+            }
+            const unsupportedChains = [];
+            _proposal.permissions.blockchain.chains.forEach((chainId) => {
+                if (chains.includes(chainId)) {
                     return;
                 }
-                setLoading(false);
-                client.on(
-                    CLIENT_EVENTS.session.proposal,
-                    (_proposal: SessionTypes.Proposal) => {
-                        console.log("Proposal", _proposal);
-                        if (typeof client === "undefined") {
-                            return;
-                        }
-                        const unsupportedChains = [];
-                        _proposal.permissions.blockchain.chains.forEach(
-                            (chainId) => {
-                                if (chains.includes(chainId)) {
-                                    return;
-                                }
-                                unsupportedChains.push(chainId);
-                            }
-                        );
-                        if (unsupportedChains.length) {
-                            return client.reject({ proposal: _proposal });
-                        }
-                        const unsupportedMethods: string[] = [];
-                        _proposal.permissions.jsonrpc.methods.forEach(
-                            (method) => {
-                                if (DEFAULT_EIP155_METHODS.includes(method)) {
-                                    return;
-                                }
-                                unsupportedMethods.push(method);
-                            }
-                        );
-                        console.log("unsupportedMethods", unsupportedMethods);
-                        if (unsupportedMethods.length) {
-                            return client.reject({ proposal: _proposal });
-                        }
-                        setProposal(_proposal);
-                        navigate("Modal");
-                    }
-                );
-                console.log("Subscribed pruposal");
-                client.on(
-                    CLIENT_EVENTS.session.request,
-                    async (_requestEvent: SessionTypes.RequestEvent) => {
-                        if (!agent) {
-                            throw Error("VeramoAgent not initialized");
-                        }
-                        try {
-                            setRequest(_requestEvent);
-                            navigate("Modal");
-                        } catch (e) {
-                            const response = formatJsonRpcError(
-                                _requestEvent.request.id,
-                                e.message
-                            );
-                            await client.respond({
-                                topic: _requestEvent.topic,
-                                response,
-                            });
-                        }
-                    }
-                );
-                console.log("Subscribed request");
-            } catch (e) {
-                console.log("Failed to subscribe Client!");
-                console.error(e);
+                unsupportedChains.push(chainId);
+            });
+            if (unsupportedChains.length) {
+                return client.reject({ proposal: _proposal });
             }
-        };
-        subscribeClient();
-        return () => {
-            console.log("Destroyed subscribe");
-        };
-    }, [client, chains, accounts, agent]);
+            const unsupportedMethods: string[] = [];
+            _proposal.permissions.jsonrpc.methods.forEach((method) => {
+                if (DEFAULT_EIP155_METHODS.includes(method)) {
+                    return;
+                }
+                unsupportedMethods.push(method);
+            });
+            console.log("unsupportedMethods", unsupportedMethods);
+            if (unsupportedMethods.length) {
+                return client.reject({ proposal: _proposal });
+            }
+            setProposal(_proposal);
+            navigate("Modal");
+        },
+        [chains, client]
+    );
+
+    const handleRequest = useCallback(
+        (_requestEvent: SessionTypes.RequestEvent) => {
+            setRequest(_requestEvent);
+            navigate("Modal");
+        },
+        []
+    );
 
     async function onApprove() {
         if (typeof proposal !== "undefined") {
@@ -350,6 +312,39 @@ export const ContextProvider = (props: any) => {
         }
         goBack();
     }
+
+    useEffect(() => {
+        const subscribeClient = async () => {
+            try {
+                if (!client) {
+                    return;
+                }
+                console.log("Subscribing Client...");
+                client.on(CLIENT_EVENTS.session.proposal, handlePruposal);
+                client.on(CLIENT_EVENTS.session.request, handleRequest);
+                console.log("Subscribed pruposal");
+                console.log("Subscribed request");
+                setLoading(false);
+            } catch (e) {
+                console.log("Failed to subscribe Client!");
+                console.error(e);
+            }
+        };
+        subscribeClient();
+        return () => {
+            if (client) {
+                client?.removeListener(
+                    CLIENT_EVENTS.session.proposal,
+                    handlePruposal
+                );
+                client?.removeListener(
+                    CLIENT_EVENTS.session.request,
+                    handleRequest
+                );
+            }
+            console.log("Destroyed subscribe");
+        };
+    }, [client, chains, handlePruposal, handleRequest]);
 
     // Make the context object:
     const context: IContext = {
