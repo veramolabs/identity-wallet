@@ -62,6 +62,7 @@ export interface IContext {
     setProposal: Dispatch<SessionTypes.Proposal | undefined>;
     request: SessionTypes.RequestEvent | undefined;
     setRequest: Dispatch<SessionTypes.RequestEvent | undefined>;
+    closeSession: (topic: string) => Promise<void>;
     onApprove: () => Promise<void>;
     onReject: () => Promise<void>;
     selectedChain: string;
@@ -78,25 +79,7 @@ export interface IContext {
     ) => Promise<JwtPayload>;
 }
 
-export const INITIAL_CONTEXT: IContext = {
-    loading: false,
-    chains: undefined!,
-    accounts: undefined!,
-    client: undefined,
-    proposal: undefined,
-    setProposal: undefined!,
-    request: undefined,
-    setRequest: undefined!,
-    onApprove: undefined!,
-    onReject: undefined!,
-    selectedChain: undefined!,
-    provider: undefined!,
-    deleteVeramoData: undefined!,
-    createVC: undefined!,
-    createVP: undefined!,
-    decodeJWT: undefined!,
-};
-export const Context = createContext<IContext>(INITIAL_CONTEXT);
+export const Context = createContext<IContext>(undefined!);
 
 export const ContextProvider = (props: any) => {
     const [loading, setLoading] = useState<boolean>(true);
@@ -229,6 +212,19 @@ export const ContextProvider = (props: any) => {
         },
         []
     );
+
+    async function closeSession(topic: string) {
+        if (!client) {
+            throw new Error("Client is not initialized");
+        }
+        client.disconnect({
+            topic: topic,
+            reason: {
+                message: "User closed session from app.",
+                code: 123,
+            },
+        });
+    }
 
     async function onApprove() {
         if (typeof proposal !== "undefined") {
@@ -560,6 +556,7 @@ export const ContextProvider = (props: any) => {
         provider,
         proposal,
         setProposal,
+        closeSession,
         request: requestEvent,
         setRequest,
         onApprove,
