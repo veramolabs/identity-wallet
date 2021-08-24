@@ -6,13 +6,15 @@ import { Sessions } from "../components/modals/Sessions";
 import { Context } from "../context";
 
 export const Settings = () => {
-    const { loading, client, closeSession } = useContext(Context);
+    const { client, closeSession } = useContext(Context);
     const [sessions, setSessions] = useState<SessionTypes.Settled[]>([]);
     const activeSessions = client?.session.values.length;
 
     useEffect(() => {
         let subscribed = true;
-        if (!client) return;
+        if (!client) {
+            return;
+        }
         console.log(client.session.values);
         setSessions(client.session.values);
         client.on(CLIENT_EVENTS.pairing.deleted, (some: any) => {
@@ -31,7 +33,7 @@ export const Settings = () => {
         return () => {
             subscribed = false;
         };
-    }, [client?.session]);
+    }, [client, client?.session]);
 
     return (
         <>

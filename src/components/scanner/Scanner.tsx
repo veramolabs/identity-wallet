@@ -5,21 +5,20 @@ import QRCodeScanner from "react-native-qrcode-scanner";
 import { Button } from "../ui/Button";
 import { Context } from "./../../context";
 
-
 export const Scanner = () => {
     const { client } = useContext(Context);
 
     const clearAsyncStorage = async () => {
         const asyncStorageKeys = await AsyncStorage.getAllKeys();
         if (asyncStorageKeys.length > 0) {
-            if (Platform.OS === 'android') {
+            if (Platform.OS === "android") {
                 await AsyncStorage.clear();
             }
-            if (Platform.OS === 'ios') {
+            if (Platform.OS === "ios") {
                 await AsyncStorage.multiRemove(asyncStorageKeys);
             }
         }
-    }
+    };
 
     async function onRead(data: any) {
         console.log(data);
