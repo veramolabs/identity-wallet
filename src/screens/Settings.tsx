@@ -1,18 +1,11 @@
 import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import React, { useContext, useEffect, useState } from "react";
-import {
-    ActivityIndicator,
-    Button,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    View,
-} from "react-native";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Sessions } from "../components/modals/Sessions";
 import { Context } from "../context";
-import { navigate } from "./../navigation";
 
-export const Home = () => {
+export const Settings = () => {
     const { loading, client, closeSession } = useContext(Context);
     const [sessions, setSessions] = useState<SessionTypes.Settled[]>([]);
     const activeSessions = client?.session.values.length;
@@ -20,10 +13,8 @@ export const Home = () => {
     useEffect(() => {
         let subscribed = true;
         if (!client) return;
-        setSessions(client.session.values);
-        console.log("Setting sessions");
         console.log(client.session.values);
-        client.on(CLIENT_EVENTS.session.deleted, (some: any) => {
+        client.on(CLIENT_EVENTS.pairing.deleted, (some: any) => {
             console.log("deleted", some);
             if (subscribed) {
                 setSessions(client.session.values);
@@ -42,16 +33,21 @@ export const Home = () => {
 
     return (
         <>
-            <StatusBar />
             <SafeAreaView style={styles.container}>
-                {loading ? (
-                    <ActivityIndicator size="large" />
+                {activeSessions && activeSessions > 0 ? (
+                    <Text>Tilkoblet</Text>
                 ) : (
-                    <View style={styles.actionContainer}>
-                        <Button
-                            title="Scan QR"
-                            onPress={() => navigate("Scanner")}
-                        />
+                    <Text>Ikke tilkoblet</Text>
+                )}
+                {sessions.length > 0 ? (
+                    <Sessions
+                        sessions={sessions}
+                        resetCard={() => {}}
+                        closeSession={closeSession}
+                    />
+                ) : (
+                    <View>
+                        <Text>Ingen sessions</Text>
                     </View>
                 )}
             </SafeAreaView>

@@ -15,33 +15,30 @@ export const Sessions: React.FC<Props> = ({
     closeSession,
     resetCard,
 }) => {
-    if (sessions?.length < 1) {
-        return (
-            <View>
-                <Text>"No sessions"</Text>
-            </View>
-        );
-    } else {
-        return (
-            <View>
-                {sessions.map((session, index) => (
-                    <View>
-                        <Image
-                            source={{ uri: session.peer.metadata.icons[0] }}
-                        />
-                        <Text>{session.peer.metadata.name}</Text>
-                        <Text>{`Expires in ${formatDistanceToNow(
-                            new Date(session.expiry)
-                        )}`}</Text>
-                        <Button
-                            color={"red"}
-                            text="Close session"
-                            onPress={() =>
-                                closeSession(session.topic)
-                            }></Button>
-                    </View>
-                ))}
-            </View>
-        );
-    }
+    return (
+        <View
+            style={{
+                flex: 1,
+                padding: 20,
+            }}>
+            {sessions.map((session, index) => (
+                <View
+                    style={{
+                        flex: 1,
+                        padding: 5,
+                    }}
+                    key={session.topic}>
+                    <Image source={{ uri: session.peer.metadata.icons[0] }} />
+                    <Text>{session.peer.metadata.name}</Text>
+                    <Text>{`Expires in ${formatDistanceToNow(
+                        new Date(session.expiry)
+                    )}`}</Text>
+                    <Button
+                        color={"red"}
+                        text="Close session"
+                        onPress={() => closeSession(session.topic)}></Button>
+                </View>
+            ))}
+        </View>
+    );
 };
