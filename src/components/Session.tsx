@@ -14,8 +14,6 @@ export const Session = (props: SessionProps) => {
     const [modalVisible, setModalVisible] = useState(false);
     const { session, closeSession } = props;
 
-    console.log(session.peer.metadata.icons[0]);
-
     return (
         <View>
             <View
