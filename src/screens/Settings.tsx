@@ -14,8 +14,10 @@ export const Settings = () => {
         let subscribed = true;
         if (!client) return;
         console.log(client.session.values);
+        setSessions(client.session.values);
         client.on(CLIENT_EVENTS.pairing.deleted, (some: any) => {
             console.log("deleted", some);
+            console.log("subscribed", subscribed);
             if (subscribed) {
                 setSessions(client.session.values);
             }

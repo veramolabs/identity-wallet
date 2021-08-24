@@ -2,6 +2,7 @@ import { SessionTypes } from "@walletconnect/types";
 import { formatDistanceToNow } from "date-fns";
 import React from "react";
 import { Image, Text, View } from "react-native";
+import { Session } from "../Session";
 import { Button } from "../ui/Button";
 
 interface Props {
@@ -18,26 +19,16 @@ export const Sessions: React.FC<Props> = ({
     return (
         <View
             style={{
+                flexDirection: "column",
                 flex: 1,
                 padding: 20,
             }}>
             {sessions.map((session, index) => (
-                <View
-                    style={{
-                        flex: 1,
-                        padding: 5,
-                    }}
-                    key={session.topic}>
-                    <Image source={{ uri: session.peer.metadata.icons[0] }} />
-                    <Text>{session.peer.metadata.name}</Text>
-                    <Text>{`Expires in ${formatDistanceToNow(
-                        new Date(session.expiry)
-                    )}`}</Text>
-                    <Button
-                        color={"red"}
-                        text="Close session"
-                        onPress={() => closeSession(session.topic)}></Button>
-                </View>
+                <Session
+                    key={session.topic}
+                    session={session}
+                    closeSession={closeSession}
+                />
             ))}
         </View>
     );
