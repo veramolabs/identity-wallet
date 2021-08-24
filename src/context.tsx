@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // import axios from "axios";
 // import Wallet from "caip-wallet";
 // import Client from "@walletconnect/client";
@@ -12,6 +13,7 @@ import {
     JsonRpcResponse,
 } from "@json-rpc-tools/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { VerifiablePresentation } from "@veramo/core";
 import {
     IDataStore,
     IDIDManager,
@@ -19,6 +21,7 @@ import {
     IKeyManager,
     IResolver,
     TAgent,
+    VerifiableCredential,
 } from "@veramo/core";
 import { ICredentialIssuer } from "@veramo/credential-w3c";
 import { IDataStoreORM } from "@veramo/data-store";
@@ -28,6 +31,7 @@ import { ethers, Wallet } from "ethers";
 import React, { createContext, useEffect, useState } from "react";
 import { useCallback } from "react";
 import {
+    agent,
     agent as _agent,
     deleteVeramoData,
 } from "./components/veramo/VeramoUtils";
@@ -64,25 +68,18 @@ export interface IContext {
     selectedChain: string;
     provider: ethers.providers.Provider;
     deleteVeramoData: () => void;
+    createVC: (data: Record<string, any>) => Promise<VerifiableCredential>;
+    createVP: (
+        verifier: string,
+        verifiableCredentials: VerifiableCredential[]
+    ) => Promise<VerifiablePresentation>;
+    decodeJWT: (
+        jwt: string,
+        verifyOptions?: Partial<VerifyOptions> | undefined
+    ) => Promise<JwtPayload>;
 }
 
-export const INITIAL_CONTEXT: IContext = {
-    loading: false,
-    chains: [],
-    accounts: [],
-    client: undefined,
-    proposal: undefined,
-    setProposal: () => {},
-    closeSession: async (topic: string) => {},
-    request: undefined,
-    setRequest: () => {},
-    onApprove: async () => {},
-    onReject: async () => {},
-    selectedChain: undefined!,
-    provider: undefined!,
-    deleteVeramoData: deleteVeramoData,
-};
-export const Context = createContext<IContext>(INITIAL_CONTEXT);
+export const Context = createContext<IContext>(undefined!);
 
 export const ContextProvider = (props: any) => {
     const [loading, setLoading] = useState<boolean>(true);
@@ -149,6 +146,7 @@ export const ContextProvider = (props: any) => {
         initWallet();
     }, [agent, selectedChain]);
 
+    // Init Walletconnect client
     useEffect(() => {
         const initClient = async () => {
             try {
@@ -348,11 +346,11 @@ export const ContextProvider = (props: any) => {
         subscribeClient();
         return () => {
             if (client) {
-                client?.removeListener(
+                client.removeListener(
                     CLIENT_EVENTS.session.proposal,
                     handlePruposal
                 );
-                client?.removeListener(
+                client.removeListener(
                     CLIENT_EVENTS.session.request,
                     handleRequest
                 );
@@ -360,6 +358,194 @@ export const ContextProvider = (props: any) => {
             console.log("Destroyed subscribe");
         };
     }, [client, chains, handlePruposal, handleRequest]);
+
+    const createVC = async (data: Record<string, any>) => {
+        if (!identity) {
+            throw Error("Cant create VC, identity not initilized");
+        }
+        const vc = await agent.createVerifiableCredential({
+            proofFormat: "jwt",
+            save: true,
+            credential: {
+                type: ["VerifiableCredential", "PersonCredential"],
+                credentialSubject: {
+                    ...data,
+                    id: identity?.did,
+                },
+                issuer: {
+                    id: identity.did,
+                },
+            },
+        });
+        return vc;
+    };
+
+    const createVP = async (
+        verifier: string,
+        verifiableCredentials: VerifiableCredential[]
+    ) => {
+        if (!identity) {
+            throw Error("Cant create VC, identity not initilized");
+        }
+        const vc = await agent.createVerifiablePresentation({
+            presentation: {
+                holder: identity.did,
+                verifier: [verifier],
+                verifiableCredential: verifiableCredentials,
+            },
+            proofFormat: "jwt",
+        });
+        return vc;
+    };
+
+    const decodeJWT = async (
+        jwt: string,
+        verifyOptions?: Partial<VerifyOptions>
+    ) => {
+        try {
+            const valid = await verifyJWT(jwt);
+            if (!valid) {
+                console.error("TODO : Not valid JWT");
+            }
+            const payload = JSON.parse(
+                Buffer.from(jwt.split(".")[1], "base64").toString()
+            ) as JwtPayload;
+            const errors = [];
+            if (verifyOptions) {
+                try {
+                    const isVP =
+                        "vp" in payload &&
+                        payload.vp.type.includes("VerifiablePresentation");
+                    if (verifyOptions.requireVerifiablePresentation && !isVP) {
+                        throw Error(
+                            "JWT is not a VerifiablePresentation, expected a JWT with vp property and VerifiablePresentation in vp.types "
+                        );
+                    }
+                    if (verifyOptions.decodeCredentials) {
+                        if (!Array.isArray(payload.vp.verifiableCredential)) {
+                            errors.push(
+                                `JWT vp.verifiableCredential was ${typeof payload
+                                    .vp.verifiableCredential}, expected Array`
+                            );
+                        }
+                        const decodedVerifiableCredentials = await Promise.all(
+                            payload.vp.verifiableCredential.map(
+                                async (subJWT: any) => {
+                                    try {
+                                        // Decode sub credential with overridden options,
+                                        // REVIEW Is it correct to make sure VP issuer is subject of VC?
+                                        const decoded = await decodeJWT(
+                                            subJWT,
+                                            {
+                                                ...verifyOptions,
+                                                decodeCredentials: false,
+                                                audience: undefined,
+                                                subject: payload.vp.iss,
+                                                requireVerifiablePresentation:
+                                                    false,
+                                            }
+                                        );
+                                        return decoded;
+                                    } catch (error) {
+                                        errors.push(
+                                            `Error decoding subcredential: ${
+                                                error.message
+                                            }. \nSubcredential was: \n${Buffer.from(
+                                                subJWT.split(".")[1],
+                                                "base64"
+                                            ).toString()}`
+                                        );
+                                    }
+                                }
+                            )
+                        );
+                        payload.vp.JWTs =
+                            decodedVerifiableCredentials as JwtPayload[];
+                    }
+                } catch (error) {
+                    errors.push(
+                        `JWT traited as Verifiable Presentation, error while decoding subcredential: ${error.message}`
+                    );
+                }
+
+                if (verifyOptions.audience) {
+                    if (typeof payload.aud === "string") {
+                        if (payload.aud !== verifyOptions.audience) {
+                            errors.push(
+                                `JWT audience was ${payload.aud}, expected ${verifyOptions.audience}`
+                            );
+                        }
+                    } else if (Array.isArray(payload.aud)) {
+                        if (!payload.aud.includes(verifyOptions.audience)) {
+                            errors.push(
+                                `JWT audience was ${payload.aud.join(
+                                    " | "
+                                )}, expected one of ${verifyOptions.audience}`
+                            );
+                        }
+                    } else {
+                        throw Error(
+                            `JWT .aud expected string or Array, got ${typeof payload.aud}`
+                        );
+                    }
+                }
+                if (verifyOptions.issuer) {
+                    if (typeof payload.iss !== "string") {
+                        throw Error(
+                            `JWT issuer expected string, got ${typeof payload.iss}`
+                        );
+                    }
+                    if (typeof verifyOptions.issuer === "string") {
+                        if (payload.iss !== verifyOptions.issuer) {
+                            errors.push(
+                                `JWT issuer was ${payload.iss}, expected ${verifyOptions.issuer}`
+                            );
+                        }
+                    } else if (Array.isArray(verifyOptions.issuer)) {
+                        if (!verifyOptions.issuer.includes(payload.iss)) {
+                            errors.push(
+                                `JWT issuer was ${
+                                    payload.iss
+                                }, expected one of ${verifyOptions.issuer.join(
+                                    " | "
+                                )}`
+                            );
+                        }
+                    } else {
+                        errors.push(
+                            `verifyOptions.issuer was ${typeof verifyOptions.issuer}, expected Array or string`
+                        );
+                    }
+                }
+                if (verifyOptions.subject) {
+                    if (payload.sub !== verifyOptions.subject) {
+                        errors.push(
+                            `JWT subject was ${payload.sub}, expected ${verifyOptions.subject}`
+                        );
+                    }
+                }
+            }
+            if (errors.length > 0) {
+                throw Error(errors.join(".\n"));
+            }
+            return payload;
+        } catch (error) {
+            console.log("Cant decode JWT => ", error.message);
+            throw error;
+        }
+    };
+
+    const verifyJWT = async (jwt: string) => {
+        try {
+            await agent.handleMessage({
+                raw: jwt,
+            });
+            return true;
+        } catch (error) {
+            console.log("JWT not valid => ", error);
+            return false;
+        }
+    };
 
     // Make the context object:
     const context: IContext = {
@@ -377,6 +563,9 @@ export const ContextProvider = (props: any) => {
         onReject,
         selectedChain,
         deleteVeramoData,
+        createVC,
+        createVP,
+        decodeJWT,
     };
 
     // pass the value in provider and return
@@ -386,3 +575,24 @@ export const ContextProvider = (props: any) => {
 };
 
 export const { Consumer } = Context;
+export interface VerifyOptions {
+    audience: string;
+    complete: boolean;
+    issuer: string | string[];
+    ignoreExpiration: boolean;
+    ignoreNotBefore: boolean;
+    subject: string;
+    decodeCredentials: boolean;
+    requireVerifiablePresentation: boolean;
+}
+
+export interface JwtPayload {
+    [key: string]: any;
+    iss?: string;
+    sub?: string;
+    aud?: string | string[];
+    exp?: number;
+    nbf?: number;
+    iat?: number;
+    jti?: string;
+}
