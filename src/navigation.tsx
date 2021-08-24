@@ -9,6 +9,7 @@ import { Context } from "./context";
 import { BankId } from "./screens/BankId";
 import { Home } from "./screens/Home";
 import { Identity } from "./screens/Identity";
+import { Settings } from "./screens/Settings";
 import Modal from "./screens/Modal";
 import { ScannerScreen } from "./screens/ScannerScreen";
 
@@ -48,6 +49,11 @@ function Tabs() {
                 name="BankId"
                 component={BankId}
                 options={{ title: "BankID" }}
+            />
+            <Tab.Screen
+                name="Settings"
+                component={Settings}
+                options={{ title: "Settings" }}
             />
         </Tab.Navigator>
     );
