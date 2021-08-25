@@ -12,7 +12,8 @@ import { Context } from "./../../context";
 import { Clipboard } from "react-native";
 
 export const WalletInfo = () => {
-    const { accounts, provider, deleteVeramoData } = useContext(Context);
+    const { accounts, provider, deleteVeramoData, identity } =
+        useContext(Context);
     const [balance, setBalance] = useState<BigNumber>(ethers.constants.Zero);
     const [address, setAddress] = useState(() => accounts[0].split(":").pop());
 
@@ -53,6 +54,13 @@ export const WalletInfo = () => {
             <Text>Balanse</Text>
             <Text style={styles.infoText}>
                 {ethers.utils.formatEther(balance)}
+            </Text>
+
+            <Text>DID</Text>
+            <Text
+                style={styles.infoText}
+                onPress={() => (identity ? copy(identity.did) : "")}>
+                {identity ? identity.did : "Ingen DID"}
             </Text>
 
             <TouchableOpacity

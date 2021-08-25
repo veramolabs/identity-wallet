@@ -84,11 +84,11 @@ const agentConfig = {
         }),
         new DIDManager({
             store: new DIDStore(dbConnection),
-            defaultProvider: "did:ethr:eip155:421611",
+            defaultProvider: "did:ethr:421611",
             providers: {
-                "did:ethr:eip155:421611": new EthrDIDProvider({
+                "did:ethr:421611": new EthrDIDProvider({
                     defaultKms: "local",
-                    network: "rinkeby",
+                    network: 421611 as unknown as number,
                     rpcUrl: "https://arbitrum-rinkeby.infura.io/v3/d459cbc007fc49d2a44afbccc975e35c",
                     registry: "0x8f54f62CA28D481c3C30b1914b52ef935C1dF820",
                 }),
@@ -102,7 +102,7 @@ const agentConfig = {
                     }),
                     registry: "0x8f54f62CA28D481c3C30b1914b52ef935C1dF820",
                     chainId: 421611,
-                    name: "did:ethr:eip155:421611",
+                    name: "421611",
                 }),
             }),
         }),

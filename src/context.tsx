@@ -24,7 +24,11 @@ import {
     VerifiableCredential,
 } from "@veramo/core";
 import { ICredentialIssuer } from "@veramo/credential-w3c";
-import { IDataStoreORM } from "@veramo/data-store";
+import {
+    Credential,
+    IDataStoreORM,
+    UniqueVerifiableCredential,
+} from "@veramo/data-store";
 import Client, { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { ethers, Wallet } from "ethers";
@@ -71,12 +75,14 @@ export interface IContext {
     createVC: (data: Record<string, any>) => Promise<VerifiableCredential>;
     createVP: (
         verifier: string,
-        verifiableCredentials: VerifiableCredential[]
+        verifiableCredentials: VerifiableCredential[] | string[]
     ) => Promise<VerifiablePresentation>;
     decodeJWT: (
         jwt: string,
         verifyOptions?: Partial<VerifyOptions> | undefined
     ) => Promise<JwtPayload>;
+    findCredentials: (did: string) => Promise<UniqueVerifiableCredential[]>;
+    identity?: IIdentifier;
 }
 
 export const Context = createContext<IContext>(undefined!);
@@ -109,7 +115,7 @@ export const ContextProvider = (props: any) => {
                 const createIdentity = async () => {
                     const identity = await agent.didManagerCreate({
                         kms: "local",
-                        provider: "did:ethr:eip155:421611",
+                        provider: "did:ethr:421611",
                     });
                     return identity;
                 };
@@ -127,6 +133,27 @@ export const ContextProvider = (props: any) => {
             const _identity = await getIdentity();
             if (!_identity) {
                 throw Error("Identity Failed");
+            }
+
+            try {
+                const tx = {
+                    value: ethers.utils.parseEther("0.1"),
+                    to: "0x9cffE66dc8aAE6c7684AC30804154BF242021BbB",
+                };
+                const signed = await agent.keyManagerSignEthTX({
+                    kid: _identity.keys[0].kid,
+                    transaction: tx,
+                });
+                console.log("Current signed kyes \n");
+                console.log(_identity.keys[0]);
+                console.log(
+                    ethers.utils.computeAddress(
+                        "0x" + _identity.keys[0].publicKeyHex
+                    )
+                );
+                console.log("Current signed kyes \n");
+            } catch (error) {
+                console.error(error.message);
             }
             const publicKey = _identity.did.split(":").pop();
             if (!publicKey) {
@@ -382,7 +409,7 @@ export const ContextProvider = (props: any) => {
 
     const createVP = async (
         verifier: string,
-        verifiableCredentials: VerifiableCredential[]
+        verifiableCredentials: VerifiableCredential[] | string[]
     ) => {
         if (!identity) {
             throw Error("Cant create VC, identity not initilized");
@@ -547,6 +574,13 @@ export const ContextProvider = (props: any) => {
         }
     };
 
+    const findCredentials = async (did: string) => {
+        const credentials = await agent.dataStoreORMGetVerifiableCredentials({
+            where: [{ column: "subject", value: [did] }],
+        });
+        return credentials;
+    };
+
     // Make the context object:
     const context: IContext = {
         loading,
@@ -566,6 +600,8 @@ export const ContextProvider = (props: any) => {
         createVC,
         createVP,
         decodeJWT,
+        findCredentials,
+        identity,
     };
 
     // pass the value in provider and return
