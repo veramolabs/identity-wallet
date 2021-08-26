@@ -1,4 +1,5 @@
 import React from "react";
+import Toast from "react-native-toast-message";
 import { ContextProvider } from "./context";
 import { Navigation } from "./navigation";
 
@@ -6,6 +7,7 @@ const App = () => {
     return (
         <ContextProvider>
             <Navigation />
+            <Toast ref={(ref) => Toast.setRef(ref)} />
         </ContextProvider>
     );
 };

@@ -39,7 +39,7 @@ export const Home = () => {
         return () => {
             subscribed = false;
         };
-    }, [client?.session]);
+    }, [client, client?.session]);
 
     return (
         <>

@@ -1,5 +1,6 @@
-import { BROK_HELPERS_URL, BROK_HELPERS_VERIFIER } from "@env";
-import axios, { AxiosError } from "axios";
+import { BROK_HELPERS_VERIFIER } from "@env";
+import { VerifiablePresentation } from "@veramo/core";
+import { AxiosError } from "axios";
 import { decodeJWT as decodeJWT2 } from "did-jwt";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -12,7 +13,10 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { BankidWebview } from "../components/bankid/BankidWebview";
+import { registerForvalt } from "../components/presenter/ForvaltPresenter";
+import { VPApprovalView } from "../components/VPApprovalView";
 import { Context } from "../context";
 import { goBack } from "../navigation";
 import { BankidJWTPayload } from "./../types/bankid";
@@ -35,6 +39,9 @@ export const BankId = () => {
         isTest ? "Testveien 123" : ""
     );
     const [postcode, setPostcode] = useState(isTest ? "0556" : "");
+    const [pendingApprovalVp, setPendingApprovalVp] = useState<
+        VerifiablePresentation | undefined
+    >();
 
     useEffect(() => {
         if (!bankidToken) {
@@ -45,59 +52,62 @@ export const BankId = () => {
         );
     }, [bankidToken]);
 
+    useEffect(() => {
+        if (errors.length > 0) {
+            Toast.show({
+                type: "error",
+                text1: "Something went wrong",
+                text2: errors.join(","),
+                topOffset: 100,
+                position: "top",
+            });
+            setErrors((old) => []);
+        }
+    }, [errors]);
+
+    const registerInForvaltAndSaveVP = (vp: VerifiablePresentation) => {
+        registerForvalt(vp)
+            .then((result) => {
+                console.log("RESULT register vp", result);
+                saveVP(result.data);
+                setPendingApprovalVp(undefined);
+                setLoading(false);
+                goBack();
+            })
+            .catch((error: AxiosError) => {
+                setErrors((old) => [...old, error.response?.data.message]);
+            });
+    };
+
     // Use authVC to register
     const handleConfirmUserInput = async () => {
         try {
             if (!email || !streetAddress || !postcode) {
-                throw Error("TODO : HANDLE THIS");
+                let errorMessage = "";
+                if (!email) {
+                    errorMessage += "email, ";
+                }
+                if (!streetAddress) {
+                    errorMessage += "address, ";
+                }
+                if (!postcode) {
+                    errorMessage += "postcode";
+                }
+                throw Error(`Missing input: ${errorMessage}`);
             }
             setLoading(true);
             const vc = await createVC({
-                epostadresse: email,
-                veiaddresse: streetAddress,
+                epost: email,
+                veiadresse: streetAddress,
                 postnummer: postcode,
                 identityProof: bankidToken,
             });
 
             const vp = await createVP(BROK_HELPERS_VERIFIER, [vc.proof.jwt]);
-
-            const res = await axios
-                .post<string>(
-                    `${
-                        isTest ? "http://localhost:3004" : BROK_HELPERS_URL
-                    }/brreg/entity/register`,
-                    {
-                        jwt: vp.proof.jwt,
-                        skipBlockchain: false,
-                        skipBankidVerify: isTest ? true : false,
-                    }
-                )
-                .catch(
-                    (error: AxiosError<{ message: string; code: number }>) => {
-                        console.log("AXIOS ERROR ", error);
-                        console.log(error.response?.data);
-                        if (error.response && error.response.data.message) {
-                            throw Error(error.response.data.message);
-                        }
-                        throw Error(error.message);
-                    }
-                );
-            // console.log(res);
-            // const decoded = await decodeJWT(res.data, {
-            //     requireVerifiablePresentation: true,
-            //     decodeCredentials: true,
-            //     issuer: BROK_HELPERS_VERIFIER,
-            //     audience: identity?.did,
-            // });
-            // console.log("res from /brreg/entity/register", decoded);
-            const hash = await saveVP(res.data);
-
-            setLoading(false);
-            goBack();
+            setPendingApprovalVp(vp);
         } catch (error) {
             setLoading(false);
             setErrors((old) => [...old, error.message]);
-            throw error;
         }
     };
     return (
@@ -112,12 +122,6 @@ export const BankId = () => {
                                 Verifisert bankid
                             </Text>
                         )}
-                        {errors.length > 0 &&
-                            errors.map((error, i) => (
-                                <Text key={i} style={{ color: "red" }}>
-                                    {error}
-                                </Text>
-                            ))}
                     </View>
 
                     {/* show loading */}
@@ -126,13 +130,27 @@ export const BankId = () => {
                             <ActivityIndicator />
                         </View>
                     )}
+                    {pendingApprovalVp && (
+                        <VPApprovalView
+                            vp={pendingApprovalVp.proof.jwt}
+                            onApprove={() =>
+                                registerInForvaltAndSaveVP(pendingApprovalVp)
+                            }
+                            onReject={() => {
+                                setLoading(false);
+                                setPendingApprovalVp(undefined);
+                                console.log("rejected");
+                            }}
+                        />
+                    )}
                     {/* Show bankidWebview */}
                     {!bankidToken && (
                         <BankidWebview
                             onSuccess={setBankidToken}
-                            onError={(error) =>
-                                console.log("BankidWebview", error)
-                            }
+                            onError={(error) => {
+                                setErrors((old) => [...old, error]);
+                                console.log("BankidWebview", error);
+                            }}
                         />
                     )}
                     {/* Show register email and addresss */}

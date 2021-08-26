@@ -1,5 +1,19 @@
 /* eslint-disable no-undef */
 import { BROK_HELPERS_VERIFIER } from "@env";
+// import axios from "axios";
+// import Wallet from "caip-wallet";
+// import Client from "@walletconnect/client";
+// import { SessionTypes } from "@walletconnect/types";
+
+// import KeyValueStorage from "keyvaluestorage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+    formatJsonRpcError,
+    formatJsonRpcResult,
+    JsonRpcError,
+    JsonRpcResponse,
+} from "@json-rpc-tools/utils";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     IDataStore,
     IDIDManager,
@@ -19,12 +33,20 @@ import {
 } from "@veramo/data-store";
 import Client from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
-import { ethers } from "ethers";
-import React, { createContext, useEffect, useState } from "react";
-import { DEFAULT_RPC_PROVIDER, DEFAULT_TEST_CHAINS } from "./constants/default";
-import { navigate } from "./navigation";
 import { useVeramo } from "./utils/useVeramo";
 import { useWalletconnect } from "./utils/useWalletconnect";
+import { normalizePresentation } from "did-jwt-vc";
+import { ethers } from "ethers";
+import React, { createContext, useCallback, useEffect, useState } from "react";
+import { registerForvalt } from "./components/presenter/ForvaltPresenter";
+import {
+    DEFAULT_APP_METADATA,
+    DEFAULT_EIP155_METHODS,
+    DEFAULT_RPC_PROVIDER,
+    DEFAULT_RELAY_PROVIDER,
+    DEFAULT_TEST_CHAINS,
+} from "./constants/default";
+import { goBack, navigate } from "./navigation";
 
 export type Agent = TAgent<
     IDIDManager &
@@ -100,42 +122,44 @@ export const ContextProvider = (props: any) => {
     useEffect(() => {
         let subscribed = true;
         const doAsync = async () => {
-            if (veramo.identity) {
-                const vc = await veramo
-                    .findVC({
-                        where: [
-                            {
-                                column: "issuer",
-                                value: [BROK_HELPERS_VERIFIER],
-                            },
-                            {
-                                column: "subject",
-                                value: [veramo.identity?.did],
-                            },
-                        ],
-                    })
-                    .catch((err) => {
-                        console.error(err.message);
-                        throw err;
+            if (veramo.accounts.length > 0) {
+                const address = veramo.accounts[0].split(":").pop();
+                if (address) {
+                    const vc = await veramo
+                        .findVC({
+                            where: [
+                                {
+                                    column: "issuer",
+                                    value: [BROK_HELPERS_VERIFIER],
+                                },
+                                // {
+                                //     column: "subject",
+                                //     value: [veramo.identity?.did],
+                                // },
+                            ],
+                        })
+                        .catch((err) => {
+                            console.error(err.message);
+                            throw err;
+                        });
+                    const hasRegistered = vc.find((vc) => {
+                        return (
+                            "brregRegistered" in
+                            vc.verifiableCredential.credentialSubject
+                        );
                     });
-                const hasRegistered = vc.find((vc) => {
-                    // console.log(vc.verifiableCredential.credentialSubject);
-                    return (
-                        "brregRegistered" in
-                        vc.verifiableCredential.credentialSubject
-                    );
-                });
-                console.info("hasTrustedIndentity", !!hasRegistered);
-                setHasTrustedIndentity(!!hasRegistered);
-            }
-            if (subscribed) {
+                    console.info("hasTrustedIndentity", !!hasRegistered);
+                    if (subscribed) {
+                        setHasTrustedIndentity(!!hasRegistered);
+                    }
+                }
             }
         };
         doAsync();
         return () => {
             subscribed = false;
         };
-    }, [veramo, veramo.identity]);
+    }, [veramo, veramo.accounts]);
 
     // navigate user if not got identifier
     useEffect(() => {

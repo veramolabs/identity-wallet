@@ -1,12 +1,11 @@
 import React, { useContext, useEffect } from "react";
-
+import { Context } from "../context";
 import { Proposal } from "./../components/modals/Proposal";
 import { Request } from "./../components/modals/Request";
 
-import { Context } from "../context";
-
 const Modal = () => {
     const { proposals, requests, onApprove, onReject } = useContext(Context);
+
     useEffect(() => {
         console.log("Request updated", requests.length);
     }, [requests]);
