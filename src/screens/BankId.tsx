@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import React, { useEffect, useState } from "react";
 import { useContext } from "react";
 import {
@@ -9,6 +9,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    ActivityIndicator,
 } from "react-native";
 import { BankidWebview } from "../components/bankid/BankidWebview";
 import { Context } from "../context";
@@ -17,91 +18,91 @@ import { VerifiableCredential } from "@veramo/core";
 import { ethers } from "ethers";
 import { decodeJWT as decodeJWT2 } from "did-jwt";
 import { BankidJWTPayload } from "./../types/bankid";
+import { goBack } from "../navigation";
 
-const TESTING = true;
+const TESTING = false;
 
 export const BankId = () => {
-    const { createVC, createVP, decodeJWT } = useContext(Context);
+    const { createVC, createVP, decodeJWT, identity, findVC, saveVP } =
+        useContext(Context);
+    const [loading, setLoading] = useState(false);
+    const [done, setDone] = useState();
+    const [errors, setErrors] = useState<string[]>([]);
     const [bankidToken, setBankidToken] = useState<string>(() => {
         return TESTING
-            ? "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjlFMkUzN0M1MTVGRTc5MkNBQUI4NDg3REJGNkE4NTlBMEZCOEE4NEQifQ.eyJpc3MiOiJodHRwczovL2Jsb2NrY2hhbmdlcnMuY3JpaXB0by5pZCIsImF1ZCI6InVybjpteTphcHBsaWNhdGlvbjppZGVudGlmaWVyOjgwNjAiLCJpZGVudGl0eXNjaGVtZSI6Im5vYmFua2lkIiwiYXV0aGVudGljYXRpb250eXBlIjoidXJuOmdybjphdXRobjpubzpiYW5raWQ6Y2VudHJhbCIsImF1dGhlbnRpY2F0aW9ubWV0aG9kIjoidXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFjOmNsYXNzZXM6U29mdHdhcmVQS0kiLCJhdXRoZW50aWNhdGlvbmluc3RhbnQiOiIyMDIxLTA4LTI0VDEyOjU4OjM3LjE5NFoiLCJuYW1laWRlbnRpZmllciI6IjMzMWY5MTIwMDUyMDRhNWY4YmVhYmY1NDFmYjk5N2E1Iiwic3ViIjoiezMzMWY5MTIwLTA1MjAtNGE1Zi04YmVhLWJmNTQxZmI5OTdhNX0iLCJzZXNzaW9uaW5kZXgiOiIwZmQ2ODcxNy05YjQxLTRiN2MtYTFlZi00ODEzNjU1NDY0NGYiLCJ1bmlxdWVtZXJjaGFudGlkIjoiMTIzNDU2Nzg5IiwidW5pcXVldXNlcmlkIjoiOTU3OC02MDAwLTQtNTEyMzgyIiwiY2VydHN1YmplY3QiOiJDTj1cIlJhbXZpLCBKb25cIiwgTz1UZXN0QmFuazEgQVMsIEM9Tk8sIFNFUklBTE5VTUJFUj05NTc4LTYwMDAtNC01MTIzODIiLCJjZXJ0aXNzdWVyIjoiQ049QmFua0lEIC0gVGVzdEJhbmsxIC0gQmFuayBDQSAzLCBPVT0xMjM0NTY3ODksIE89VGVzdEJhbmsxIEFTLCBDPU5PIiwiaXNzdWVyIjoiQ049QmFua0lEIC0gVGVzdEJhbmsxIC0gQmFuayBDQSAzLCBPVT0xMjM0NTY3ODksIE89VGVzdEJhbmsxIEFTLCBDPU5PIiwiZGF0ZW9mYmlydGgiOiIxOTAzMDUwOSIsImJpcnRoZGF0ZSI6IjE5MDMtMDUtMDkiLCJzb2NpYWxubyI6IjA5MDUwMzE5OTM1Iiwic2VyaWFsbnVtYmVyIjoiOTU3OC02MDAwLTQtNTEyMzgyIiwiY291bnRyeSI6Ik5PIiwiaXNzdWluZ2JhbmsiOiJUZXN0QmFuazEgQVMiLCJuYW1lIjoiUmFtdmksIEpvbiIsImlhdCI6MTYyOTgwOTkxNywibmJmIjoxNjI5ODA5OTE3LCJleHAiOjE2Mjk4OTYyNTd9.wTY8LYGen_CED_kNZcCAD-4vCslwYpBoEmfA1BcnlYsPIAzf3zcE48HJ4DCP7isEBmmTwVKgIh7ona4dSW5aPiz6CLbO1SpNGE36hEMxyB4fwE9Sh6vEDJdouaSiip2S5JslCdHWSzSkhPA7TWRbBPFB45PAdrd-mnYmMirWvHwUCNAiMaqTbAhAY9cDnFWsQ0H781aNOBnIOBbp_e2pDiXCv_QhrQTKYDsX56ZIteJyXOx086GdahObUgELZZuKAyd6z5AK9MXvcKVLRQhYzbqQ7vCARsM_Luv4dMkNQKcCD85_NlzkyT1IUoqoSZFCxCxNo8gIgZ2CQQdF3JasnQ"
+            ? "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjlFMkUzN0M1MTVGRTc5MkNBQUI4NDg3REJGNkE4NTlBMEZCOEE4NEQifQ.eyJpc3MiOiJodHRwczovL2Jsb2NrY2hhbmdlcnMuY3JpaXB0by5pZCIsImF1ZCI6InVybjpteTphcHBsaWNhdGlvbjppZGVudGlmaWVyOjgwNjAiLCJpZGVudGl0eXNjaGVtZSI6Im5vYmFua2lkIiwiYXV0aGVudGljYXRpb250eXBlIjoidXJuOmdybjphdXRobjpubzpiYW5raWQ6Y2VudHJhbCIsImF1dGhlbnRpY2F0aW9ubWV0aG9kIjoidXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFjOmNsYXNzZXM6U29mdHdhcmVQS0kiLCJhdXRoZW50aWNhdGlvbmluc3RhbnQiOiIyMDIxLTA4LTI2VDA4OjE0OjE5LjQwNloiLCJuYW1laWRlbnRpZmllciI6IjYxMmJjODI5NDFkNDRjYzZhMzdkMmI5YTcyNTAxNzIwIiwic3ViIjoiezYxMmJjODI5LTQxZDQtNGNjNi1hMzdkLTJiOWE3MjUwMTcyMH0iLCJzZXNzaW9uaW5kZXgiOiJiNjRjNmU2YS02OGM5LTRkNWEtYmE5YS1hNjQwZjI5YTc0OWYiLCJ1bmlxdWVtZXJjaGFudGlkIjoiMTIzNDU2Nzg5IiwidW5pcXVldXNlcmlkIjoiOTU3OC02MDAwLTQtNDY0NzUxIiwiY2VydHN1YmplY3QiOiJDTj1cIkxvLCBNb3J0ZW5cIiwgTz1UZXN0QmFuazEgQVMsIEM9Tk8sIFNFUklBTE5VTUJFUj05NTc4LTYwMDAtNC00NjQ3NTEiLCJjZXJ0aXNzdWVyIjoiQ049QmFua0lEIC0gVGVzdEJhbmsxIC0gQmFuayBDQSAzLCBPVT0xMjM0NTY3ODksIE89VGVzdEJhbmsxIEFTLCBDPU5PIiwiaXNzdWVyIjoiQ049QmFua0lEIC0gVGVzdEJhbmsxIC0gQmFuayBDQSAzLCBPVT0xMjM0NTY3ODksIE89VGVzdEJhbmsxIEFTLCBDPU5PIiwiZGF0ZW9mYmlydGgiOiIxOTIxMTAxNCIsImJpcnRoZGF0ZSI6IjE5MjEtMTAtMTQiLCJzb2NpYWxubyI6IjE0MTAyMTIzOTczIiwic2VyaWFsbnVtYmVyIjoiOTU3OC02MDAwLTQtNDY0NzUxIiwiY291bnRyeSI6Ik5PIiwiaXNzdWluZ2JhbmsiOiJUZXN0QmFuazEgQVMiLCJuYW1lIjoiTG8sIE1vcnRlbiIsImlhdCI6MTYyOTk2NTY1OSwibmJmIjoxNjI5OTY1NjU5LCJleHAiOjE2MzAwNTE5OTl9.x9Qo-Tzy8dNPDMaYkR5THlKsjy0YC3EOf_0mvYG8uviHtdvam69aQOg5NbogUQnIYqIxlUhaCF4TrtwpeJc9xj9VoY1EEH3svyduadRAMbk9J9h-XZGx5H5o-zQqq80C9AW58SFLWf-Fz_rBnMpLtp-5ASfMbuIIhHNi9Tq7hRMZw989YyBZH3hRrSkoZiRrXkPhvY6lmbR0D8FQrGtq65FrNeGPOD_H1wvL_fkrXRDKCTQAXfGg7Xs0lLQ9Affc5I9QSnbSJk8HWV0dEzSc0nXEHPj00fAKgOufZKj6tIM7d13LHBcTMwYG9XXWuXHATg3lk_vjZpa_g1jCp1WRXA"
             : "";
     });
-    const [bankidTokenDecoded, setBankidTokenDecoded] = useState(() => {
-        if (bankidToken) {
-            return decodeJWT2(bankidToken).payload as BankidJWTPayload;
-        }
-    });
-    const [authVC, setAuthVC] = useState<string[]>([]);
-    const [email, setEmail] = useState("");
-    const [streetAddress, setstreetAddress] = useState("");
-    const [postcode, setPostcode] = useState("");
+    const [bankidTokenDecoded, setBankidTokenDecoded] =
+        useState<BankidJWTPayload>();
+    const [email, setEmail] = useState(TESTING ? "test@email.com" : "");
+    const [streetAddress, setstreetAddress] = useState(
+        TESTING ? "Testveien 123" : ""
+    );
+    const [postcode, setPostcode] = useState(TESTING ? "0556" : "");
 
-    // Use bankidToken to get authVC
     useEffect(() => {
-        let subscribed = true;
-        const doAsync = async () => {
-            if (!bankidToken) {
-                return;
-            }
-            console.log("bankidToken => , ", decodeJWT2(bankidToken));
-            const vc = await createVC({
-                bankIdToken: bankidToken,
-            });
-            console.log("VC => ", decodeJWT2(vc.proof.jwt).payload);
-
-            const vp = await createVP(BROK_HELPERS_VERIFIER, [vc]);
-            console.log("VP => ", decodeJWT2(vp.proof.jwt).payload);
-
-            const res = await axios.post<string[]>(
-                `${
-                    true ? "http://localhost:3004" : BROK_HELPERS_URL
-                }/brreg/verify/bankid`,
-                {
-                    jwt: vp.proof.jwt,
-                    skipBlockchain: true,
-                    skipBankidVerify: false,
-                }
-            );
-
-            const decoded = await decodeJWT(res.data[0]);
-            console.log(subscribed, decoded);
-            if (subscribed) {
-                setAuthVC(res.data);
-            }
-        };
-        doAsync();
-        return () => {
-            subscribed = false;
-        };
-    }, [bankidToken, createVC, createVP, decodeJWT]);
+        if (!bankidToken) {
+            return;
+        }
+        setBankidTokenDecoded(
+            decodeJWT2(bankidToken).payload as BankidJWTPayload
+        );
+    }, [bankidToken]);
 
     // Use authVC to register
     const handleConfirmUserInput = async () => {
-        if (!email || !streetAddress || !postcode) {
-            throw Error("TODO : HANDLE THIS");
-        }
-        const vc = await createVC({
-            epostadresse: email,
-            veiaddresse: streetAddress,
-            postnummer: postcode,
-        });
-        setAuthVC((old) => [...old, vc.proof.jwt]);
-
-        const vp = await createVP(BROK_HELPERS_VERIFIER, authVC);
-        console.log("vp 2 => ", vp.proof.jwt);
-
-        const res = await axios.post<string[]>(
-            `${
-                true ? "http://localhost:3004" : BROK_HELPERS_URL
-            }/brreg/entity/register`,
-            {
-                jwt: vp.proof.jwt,
-                skipBlockchain: true,
-                skipBankidVerify: false,
+        try {
+            if (!email || !streetAddress || !postcode) {
+                throw Error("TODO : HANDLE THIS");
             }
-        );
-        console.log(res.data);
+            setLoading(true);
+            const vc = await createVC({
+                epostadresse: email,
+                veiaddresse: streetAddress,
+                postnummer: postcode,
+                identityProof: bankidToken,
+            });
+
+            const vp = await createVP(BROK_HELPERS_VERIFIER, [vc.proof.jwt]);
+
+            const res = await axios
+                .post<string>(
+                    `${
+                        false ? "http://localhost:3004" : BROK_HELPERS_URL
+                    }/brreg/entity/register`,
+                    {
+                        jwt: vp.proof.jwt,
+                        skipBlockchain: false,
+                        skipBankidVerify: false,
+                    }
+                )
+                .catch(
+                    (error: AxiosError<{ message: string; code: number }>) => {
+                        console.log("AXIOS ERROR ", error);
+                        console.log(error.response?.data);
+                        if (error.response && error.response.data.message) {
+                            throw Error(error.response.data.message);
+                        }
+                        throw Error(error.message);
+                    }
+                );
+            console.log(res);
+            const decoded = await decodeJWT(res.data, {
+                requireVerifiablePresentation: true,
+                decodeCredentials: true,
+                issuer: BROK_HELPERS_VERIFIER,
+                audience: identity?.did,
+            });
+            console.log("res from /brreg/entity/register", decoded);
+            const hash = await saveVP(res.data);
+            setLoading(false);
+            goBack();
+        } catch (error) {
+            setLoading(false);
+            setErrors((old) => [...old, error.message]);
+            throw error;
+        }
     };
     return (
         <>
@@ -110,19 +111,36 @@ export const BankId = () => {
                 <View style={styles.bankidContainer}>
                     {/* Step view */}
                     <View>
-                        {!!bankidToken && <Text>Verifisert bankid</Text>}
-                        {authVC.length > 0 && <Text>Verifisert bankid VC</Text>}
+                        {!!bankidToken && (
+                            <Text style={{ textAlign: "center" }}>
+                                Verifisert bankid
+                            </Text>
+                        )}
+                        {errors.length > 0 &&
+                            errors.map((error, i) => (
+                                <Text key={i} style={{ color: "red" }}>
+                                    {error}
+                                </Text>
+                            ))}
                     </View>
 
+                    {/* show loading */}
+                    {loading && (
+                        <View>
+                            <ActivityIndicator />
+                        </View>
+                    )}
                     {/* Show bankidWebview */}
-                    {!bankidToken ?? (
+                    {!bankidToken && (
                         <BankidWebview
                             onSuccess={setBankidToken}
-                            onError={(error) => console.log(error)}
+                            onError={(error) =>
+                                console.log("BankidWebview", error)
+                            }
                         />
                     )}
                     {/* Show register email and addresss */}
-                    {authVC.length > 0 && (
+                    {!!bankidToken && !loading && (
                         <View style={{ marginTop: 20 }}>
                             <Text style={{ textAlign: "center" }}>
                                 Registrer følgende informasjon med Brreg for å

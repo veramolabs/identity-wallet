@@ -21,7 +21,7 @@ export const Scanner = () => {
     };
 
     async function onRead(data: any) {
-        console.log(data);
+        console.log("onRead", data);
         if (typeof data !== "string") {
             return;
         }
@@ -40,12 +40,11 @@ export const Scanner = () => {
     }
 
     async function onTextInput(uri: string) {
-        console.log("on text input");
+        console.log(onTextInput, uri);
         try {
             if (!uri.startsWith("wc:")) {
                 return;
             }
-            console.log("Received URI from input: ", uri);
             if (!client) {
                 throw Error("WalletConnect client not initialized");
             }

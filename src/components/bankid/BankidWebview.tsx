@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import WebView from "react-native-webview";
 import {
     BANKID_CALLBACK_URL,
@@ -15,6 +15,16 @@ interface Props {
 }
 
 export const BankidWebview: React.FC<Props> = ({ ...props }) => {
+    useEffect(() => {
+        console.log("Fnr", `11126138727`);
+        console.log("Fnr", `14102123973`);
+        console.log("Fnr", `26090286144`);
+        console.log("Fnr", `09050319935`, "Jon");
+        console.log("Fnr", `17107292926`, "Roberto");
+        console.log("One - time password", `otp`);
+        console.log("Personal password", `qwer1234`);
+    }, []);
+
     const bankidLoginURL = () => {
         if (!BANKID_CALLBACK_URL) {
             throw Error("Please set BANKID_CALLBACK_URL env variable");
@@ -54,6 +64,7 @@ export const BankidWebview: React.FC<Props> = ({ ...props }) => {
                 let url = new URL(data.url);
                 let id_token = url.searchParams.get("id_token");
                 if (typeof id_token === "string") {
+                    console.log("id_token =>", id_token);
                     props.onSuccess(id_token);
                     return;
                 }
@@ -66,7 +77,9 @@ export const BankidWebview: React.FC<Props> = ({ ...props }) => {
         <WebView
             source={{ uri: bankidLoginURL() }}
             style={styles.webview}
-            onMessage={(event) => console.log(event.nativeEvent.data)}
+            onMessage={(event) =>
+                console.log("onMessage", event.nativeEvent.data)
+            }
             onNavigationStateChange={(data) => handleWebviewStateChange(data)}
         />
     );

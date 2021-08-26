@@ -26,7 +26,12 @@ import {
 import { ICredentialIssuer } from "@veramo/credential-w3c";
 import {
     Credential,
+    FindArgs,
+    FindClaimsArgs,
+    FindCredentialsArgs,
     IDataStoreORM,
+    TCredentialColumns,
+    TPresentationColumns,
     UniqueVerifiableCredential,
 } from "@veramo/data-store";
 import Client, { CLIENT_EVENTS } from "@walletconnect/client";
@@ -46,6 +51,7 @@ import {
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
 import { goBack, navigate } from "./navigation";
+import { normalizePresentation } from "did-jwt-vc";
 
 export type Agent = TAgent<
     IDIDManager &
@@ -71,6 +77,7 @@ export interface IContext {
     onReject: () => Promise<void>;
     selectedChain: string;
     provider: ethers.providers.Provider;
+    identity?: IIdentifier;
     deleteVeramoData: () => void;
     createVC: (data: Record<string, any>) => Promise<VerifiableCredential>;
     createVP: (
@@ -81,8 +88,10 @@ export interface IContext {
         jwt: string,
         verifyOptions?: Partial<VerifyOptions> | undefined
     ) => Promise<JwtPayload>;
-    findCredentials: (did: string) => Promise<UniqueVerifiableCredential[]>;
-    identity?: IIdentifier;
+    findVC: (
+        args: FindArgs<TCredentialColumns>
+    ) => Promise<UniqueVerifiableCredential[]>;
+    saveVP: (vp: VerifiablePresentation | string) => Promise<string>;
 }
 
 export const Context = createContext<IContext>(undefined!);
@@ -120,7 +129,6 @@ export const ContextProvider = (props: any) => {
                     return identity;
                 };
                 const identifiers = await agent.didManagerFind();
-                console.log("identifiers => ", identifiers);
                 if (identifiers.length === 0) {
                     return createIdentity();
                 }
@@ -144,14 +152,6 @@ export const ContextProvider = (props: any) => {
                     kid: _identity.keys[0].kid,
                     transaction: tx,
                 });
-                console.log("Current signed kyes \n");
-                console.log(_identity.keys[0]);
-                console.log(
-                    ethers.utils.computeAddress(
-                        "0x" + _identity.keys[0].publicKeyHex
-                    )
-                );
-                console.log("Current signed kyes \n");
             } catch (error) {
                 console.error(error.message);
             }
@@ -195,7 +195,7 @@ export const ContextProvider = (props: any) => {
         };
         initClient();
         return () => {
-            console.log("Destroyeed client");
+            console.log("Destroyed client");
         };
     }, []);
 
@@ -222,7 +222,6 @@ export const ContextProvider = (props: any) => {
                 }
                 unsupportedMethods.push(method);
             });
-            console.log("unsupportedMethods", unsupportedMethods);
             if (unsupportedMethods.length) {
                 return client.reject({ proposal: _proposal });
             }
@@ -302,7 +301,6 @@ export const ContextProvider = (props: any) => {
                         kid: kid,
                         transaction: tx,
                     });
-                    console.log("Sign result", result);
                     response = formatJsonRpcResult(
                         requestEvent.request.id,
                         result
@@ -359,7 +357,7 @@ export const ContextProvider = (props: any) => {
                 if (!client) {
                     return;
                 }
-                console.log("Subscribing Client...");
+                console.log("Subscribiing Client...");
                 client.on(CLIENT_EVENTS.session.proposal, handlePruposal);
                 client.on(CLIENT_EVENTS.session.request, handleRequest);
                 console.log("Subscribed pruposal");
@@ -443,6 +441,7 @@ export const ContextProvider = (props: any) => {
                     const isVP =
                         "vp" in payload &&
                         payload.vp.type.includes("VerifiablePresentation");
+
                     if (verifyOptions.requireVerifiablePresentation && !isVP) {
                         throw Error(
                             "JWT is not a VerifiablePresentation, expected a JWT with vp property and VerifiablePresentation in vp.types "
@@ -574,11 +573,25 @@ export const ContextProvider = (props: any) => {
         }
     };
 
-    const findCredentials = async (did: string) => {
-        const credentials = await agent.dataStoreORMGetVerifiableCredentials({
-            where: [{ column: "subject", value: [did] }],
+    /* Useage
+      const result = await findVC({
+            where: [{ column: "issuer", value: [someDID] }],
         });
+    */
+    const findVC = async (args: FindArgs<TCredentialColumns>) => {
+        const credentials = await agent.dataStoreORMGetVerifiableCredentials(
+            args
+        );
         return credentials;
+    };
+
+    const saveVP = async (vp: VerifiablePresentation | string) => {
+        if (typeof vp === "string") {
+            vp = normalizePresentation(vp);
+        }
+        return await agent.dataStoreSaveVerifiablePresentation({
+            verifiablePresentation: vp,
+        });
     };
 
     // Make the context object:
@@ -600,8 +613,9 @@ export const ContextProvider = (props: any) => {
         createVC,
         createVP,
         decodeJWT,
-        findCredentials,
+        findVC,
         identity,
+        saveVP,
     };
 
     // pass the value in provider and return

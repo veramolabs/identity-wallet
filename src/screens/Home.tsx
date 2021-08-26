@@ -19,10 +19,11 @@ export const Home = () => {
 
     useEffect(() => {
         let subscribed = true;
-        if (!client) return;
+        if (!client) {
+            return;
+        }
         setSessions(client.session.values);
         console.log("Setting sessions");
-        console.log(client.session.values);
         client.on(CLIENT_EVENTS.session.deleted, (some: any) => {
             console.log("deleted", some);
             if (subscribed) {
