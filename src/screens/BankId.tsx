@@ -87,15 +87,16 @@ export const BankId = () => {
                         throw Error(error.message);
                     }
                 );
-            console.log(res);
-            const decoded = await decodeJWT(res.data, {
-                requireVerifiablePresentation: true,
-                decodeCredentials: true,
-                issuer: BROK_HELPERS_VERIFIER,
-                audience: identity?.did,
-            });
-            console.log("res from /brreg/entity/register", decoded);
+            // console.log(res);
+            // const decoded = await decodeJWT(res.data, {
+            //     requireVerifiablePresentation: true,
+            //     decodeCredentials: true,
+            //     issuer: BROK_HELPERS_VERIFIER,
+            //     audience: identity?.did,
+            // });
+            // console.log("res from /brreg/entity/register", decoded);
             const hash = await saveVP(res.data);
+
             setLoading(false);
             goBack();
         } catch (error) {
