@@ -19,6 +19,7 @@ export const DEFAULT_EIP155_METHODS = [
     "eth_signTypedData",
     "eth_signTransaction",
     "oracle_data",
+    "did_createVerifiableCredential",
 ];
 
 export const DEFAULT_LOGGER = "debug";

@@ -87,9 +87,9 @@ export const styles = StyleSheet.create({
         margin: 10,
     },
     centerText: {
-        flex: 1,
+        flex: 0.5,
         fontSize: 18,
-        paddingTop: 100,
+        paddingTop: 20,
         color: "#000",
     },
     textBold: {

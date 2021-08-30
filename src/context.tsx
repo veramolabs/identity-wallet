@@ -280,7 +280,6 @@ export const ContextProvider = (props: any) => {
                 if (!agent) {
                     throw Error("VeramoAgent not initialized on requst.");
                 }
-                const chainId = requestEvent.chainId || chains[0];
 
                 //Default error
                 let response: JsonRpcError | JsonRpcResponse =
@@ -290,13 +289,13 @@ export const ContextProvider = (props: any) => {
                             requestEvent.request.method
                     );
 
-                const kid = identity?.keys[0].kid;
-                if (!kid) {
-                    throw Error("Could not resolve Veramo KID");
-                }
-                const tx = requestEvent.request.params[0];
-                delete tx.from;
                 if (requestEvent.request.method === "eth_signTransaction") {
+                    const kid = identity?.keys[0].kid;
+                    if (!kid) {
+                        throw Error("Could not resolve Veramo KID");
+                    }
+                    const tx = requestEvent.request.params[0];
+                    delete tx.from;
                     const result = await agent.keyManagerSignEthTX({
                         kid: kid,
                         transaction: tx,
@@ -304,6 +303,33 @@ export const ContextProvider = (props: any) => {
                     response = formatJsonRpcResult(
                         requestEvent.request.id,
                         result
+                    );
+                }
+                if (
+                    requestEvent.request.method ===
+                    "did_createVerifiableCredential"
+                ) {
+                    console.log(
+                        "requestEvent.request.params[0",
+                        requestEvent.request.params[0]
+                    );
+                    if (!requestEvent.request.params[0].payload) {
+                        throw Error("Requires payload parameter");
+                    }
+                    if (!requestEvent.request.params[0].verifier) {
+                        throw Error("Requires verifier parameter");
+                    }
+                    const vc = await createVC(
+                        requestEvent.request.params[0].payload
+                    );
+                    const vp = await createVP(
+                        requestEvent.request.params[0].verifier,
+                        [vc]
+                    );
+                    // TODO @Asbjørn - Put the VP through User auth
+                    response = formatJsonRpcResult(
+                        requestEvent.request.id,
+                        vp.proof.jwt
                     );
                 }
 
