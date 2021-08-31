@@ -10,8 +10,12 @@ import { ScrollView } from "react-native-gesture-handler";
 
 interface RequestProps {
     request: SessionTypes.RequestEvent;
-    onApprove: () => Promise<void>;
-    onReject: () => Promise<void>;
+    onApprove: (
+        event: SessionTypes.RequestEvent | SessionTypes.Proposal
+    ) => Promise<void>;
+    onReject: (
+        event: SessionTypes.RequestEvent | SessionTypes.Proposal
+    ) => Promise<void>;
 }
 
 export const Request = (props: RequestProps) => {
@@ -69,12 +73,12 @@ export const Request = (props: RequestProps) => {
                         <Button
                             text="Reject"
                             color="red"
-                            onPress={() => onReject()}
+                            onPress={() => onReject(props.request)}
                         />
                         <Button
                             text="Approve"
                             color="green"
-                            onPress={() => onApprove()}
+                            onPress={() => onApprove(props.request)}
                         />
                     </View>
                 </>

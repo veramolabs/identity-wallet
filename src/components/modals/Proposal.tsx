@@ -8,8 +8,12 @@ import { Metadata } from "./../ui/Metadata";
 
 interface ProposalProps {
     proposal: SessionTypes.Proposal;
-    onApprove: () => Promise<void>;
-    onReject: () => Promise<void>;
+    onApprove: (
+        event: SessionTypes.RequestEvent | SessionTypes.Proposal
+    ) => Promise<void>;
+    onReject: (
+        event: SessionTypes.RequestEvent | SessionTypes.Proposal
+    ) => Promise<void>;
 }
 
 export const Proposal = (props: ProposalProps) => {
@@ -42,11 +46,15 @@ export const Proposal = (props: ProposalProps) => {
                 </View>
             </View>
             <View style={styles.actions}>
-                <Button text="Reject" color="red" onPress={() => onReject()} />
+                <Button
+                    text="Reject"
+                    color="red"
+                    onPress={() => onReject(proposal)}
+                />
                 <Button
                     text="Approve"
                     color="green"
-                    onPress={() => onApprove()}
+                    onPress={() => onApprove(proposal)}
                 />
             </View>
         </View>

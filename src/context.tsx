@@ -68,13 +68,17 @@ export interface IContext {
     chains: string[];
     accounts: string[];
     client: Client | undefined;
-    proposal: SessionTypes.Proposal | undefined;
-    setProposal: Dispatch<SessionTypes.Proposal | undefined>;
-    request: SessionTypes.RequestEvent | undefined;
-    setRequest: Dispatch<SessionTypes.RequestEvent | undefined>;
+    proposals: SessionTypes.Proposal[];
+    setProposals: Dispatch<SessionTypes.Proposal[]>;
+    requests: SessionTypes.RequestEvent[];
+    setRequests: Dispatch<SessionTypes.RequestEvent[]>;
     closeSession: (topic: string) => Promise<void>;
-    onApprove: () => Promise<void>;
-    onReject: () => Promise<void>;
+    onApprove: (
+        event: SessionTypes.RequestEvent | SessionTypes.Proposal
+    ) => Promise<void>;
+    onReject: (
+        event: SessionTypes.RequestEvent | SessionTypes.Proposal
+    ) => Promise<void>;
     selectedChain: string;
     provider: ethers.providers.Provider;
     identity?: IIdentifier;
@@ -108,12 +112,8 @@ export const ContextProvider = (props: any) => {
                 url: "https://arbitrum-rinkeby.infura.io/v3/eaa35471bb7947adb685b17daa1030d4",
             })
     );
-    const [proposal, setProposal] = useState<SessionTypes.Proposal | undefined>(
-        undefined
-    );
-    const [requestEvent, setRequest] = useState<
-        SessionTypes.RequestEvent | undefined
-    >(undefined);
+    const [proposals, setProposals] = useState<SessionTypes.Proposal[]>([]);
+    const [requests, setRequests] = useState<SessionTypes.RequestEvent[]>([]);
     const [identity, setIdentity] = useState<IIdentifier>();
     const [agent] = useState<Agent>(_agent);
 
@@ -199,6 +199,16 @@ export const ContextProvider = (props: any) => {
         };
     }, []);
 
+    // Navigate modal if you have requests or proposals
+    useEffect(() => {
+        if (requests.length > 0) {
+            navigate("Modal");
+        }
+        if (proposals.length > 0) {
+            navigate("Modal");
+        }
+    }, [requests, proposals]);
+
     const handlePruposal = useCallback(
         (_proposal: SessionTypes.Proposal) => {
             console.log("Proposal", _proposal);
@@ -225,16 +235,15 @@ export const ContextProvider = (props: any) => {
             if (unsupportedMethods.length) {
                 return client.reject({ proposal: _proposal });
             }
-            setProposal(_proposal);
-            navigate("Modal");
+            setProposals((old) => [...old, _proposal]);
         },
         [chains, client]
     );
 
     const handleRequest = useCallback(
         (_requestEvent: SessionTypes.RequestEvent) => {
-            setRequest(_requestEvent);
-            navigate("Modal");
+            console.log("GOT REQUEST", _requestEvent.request.params);
+            setRequests((old) => [...old, _requestEvent]);
         },
         []
     );
@@ -252,27 +261,29 @@ export const ContextProvider = (props: any) => {
         });
     }
 
-    async function onApprove() {
-        if (typeof proposal !== "undefined") {
+    async function onApprove(
+        event: SessionTypes.RequestEvent | SessionTypes.Proposal
+    ) {
+        if ("proposer" in event) {
             try {
                 if (typeof client === "undefined") {
                     return;
                 }
                 const _accounts = accounts.filter((account) => {
                     const [namespace, reference] = account.split(":");
-                    return proposal.permissions.blockchain.chains.includes(
+                    return event.permissions.blockchain.chains.includes(
                         `${namespace}:${reference}`
                     );
                 });
                 const response = {
                     state: { accounts: _accounts },
                 };
-                await client.approve({ proposal, response });
+                await client.approve({ proposal: event, response });
             } catch (e) {
                 console.error(e);
             }
-            setProposal(undefined);
-        } else if (typeof requestEvent !== "undefined") {
+            setProposals(proposals.length > 1 ? proposals.slice(1) : []);
+        } else if ("request" in event) {
             try {
                 if (typeof client === "undefined") {
                     throw Error("Client not initialized on requst.");
@@ -284,99 +295,95 @@ export const ContextProvider = (props: any) => {
                 //Default error
                 let response: JsonRpcError | JsonRpcResponse =
                     formatJsonRpcError(
-                        requestEvent.request.id,
+                        event.request.id,
                         "Unrecognised method not supported " +
-                            requestEvent.request.method
+                            event.request.method
                     );
 
-                if (requestEvent.request.method === "eth_signTransaction") {
+                if (event.request.method === "eth_signTransaction") {
                     const kid = identity?.keys[0].kid;
                     if (!kid) {
                         throw Error("Could not resolve Veramo KID");
                     }
-                    const tx = requestEvent.request.params[0];
+                    const tx = event.request.params[0];
                     delete tx.from;
                     const result = await agent.keyManagerSignEthTX({
                         kid: kid,
                         transaction: tx,
                     });
-                    response = formatJsonRpcResult(
-                        requestEvent.request.id,
-                        result
-                    );
+                    response = formatJsonRpcResult(event.request.id, result);
                 }
-                if (
-                    requestEvent.request.method ===
-                    "did_createVerifiableCredential"
-                ) {
+                if (event.request.method === "did_createVerifiableCredential") {
                     console.log(
                         "requestEvent.request.params[0",
-                        requestEvent.request.params[0]
+                        event.request.params[0]
                     );
-                    if (!requestEvent.request.params[0].payload) {
+                    if (!event.request.params[0].payload) {
                         throw Error("Requires payload parameter");
                     }
-                    if (!requestEvent.request.params[0].verifier) {
+                    if (!event.request.params[0].verifier) {
                         throw Error("Requires verifier parameter");
                     }
-                    const vc = await createVC(
-                        requestEvent.request.params[0].payload
-                    );
+                    const vc = await createVC(event.request.params[0].payload);
                     const vp = await createVP(
-                        requestEvent.request.params[0].verifier,
+                        event.request.params[0].verifier,
                         [vc]
                     );
                     // TODO @Asbjørn - Put the VP through User auth
                     response = formatJsonRpcResult(
-                        requestEvent.request.id,
+                        event.request.id,
                         vp.proof.jwt
                     );
                 }
 
                 await client.respond({
-                    topic: requestEvent.topic,
+                    topic: event.topic,
                     response,
                 });
             } catch (e) {
                 console.error(e);
             }
-            setRequest(undefined);
+
+            setRequests(requests.length > 1 ? requests.slice(1) : []);
         }
         goBack();
     }
 
-    async function onReject() {
-        if (typeof proposal !== "undefined") {
+    async function onReject(
+        event: SessionTypes.RequestEvent | SessionTypes.Proposal
+    ) {
+        if ("proposer" in event) {
             try {
                 if (typeof client === "undefined") {
                     return;
                 }
-                await client.reject({ proposal });
+                await client.reject({ proposal: event });
             } catch (e) {
                 console.error(e);
             }
-            setProposal(undefined);
-        } else if (typeof requestEvent !== "undefined") {
+            setProposals(proposals.length > 1 ? proposals.slice(1) : []);
+        } else if ("request" in event) {
             try {
                 if (typeof client === "undefined") {
                     return;
                 }
                 const response = formatJsonRpcError(
-                    requestEvent.request.id,
+                    event.request.id,
                     "User Rejected Request"
                 );
                 await client.respond({
-                    topic: requestEvent.topic,
+                    topic: event.topic,
                     response,
                 });
             } catch (e) {
                 console.error(e);
             }
-            setRequest(undefined);
+            setRequests(requests.length > 1 ? requests.slice(1) : []);
         }
         goBack();
     }
 
+    // Subscribe Walletconnect
     useEffect(() => {
         const subscribeClient = async () => {
             try {
@@ -627,11 +634,11 @@ export const ContextProvider = (props: any) => {
         accounts,
         client,
         provider,
-        proposal,
-        setProposal,
+        proposals,
+        setProposals,
         closeSession,
-        request: requestEvent,
-        setRequest,
+        requests,
+        setRequests,
         onApprove,
         onReject,
         selectedChain,

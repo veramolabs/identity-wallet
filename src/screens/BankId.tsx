@@ -69,7 +69,7 @@ export const BankId = () => {
             const res = await axios
                 .post<string>(
                     `${
-                        false ? "http://localhost:3004" : BROK_HELPERS_URL
+                        true ? "http://localhost:3004" : BROK_HELPERS_URL
                     }/brreg/entity/register`,
                     {
                         jwt: vp.proof.jwt,

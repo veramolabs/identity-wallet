@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { Proposal } from "./../components/modals/Proposal";
 import { Request } from "./../components/modals/Request";
@@ -6,19 +6,23 @@ import { Request } from "./../components/modals/Request";
 import { Context } from "../context";
 
 const Modal = () => {
-    const { proposal, request, onApprove, onReject } = useContext(Context);
-    if (proposal) {
+    const { proposals, requests, onApprove, onReject } = useContext(Context);
+    useEffect(() => {
+        console.log("Request updated", requests.length);
+    }, [requests]);
+
+    if (proposals.length > 0) {
         return (
             <Proposal
-                proposal={proposal}
+                proposal={proposals[0]}
                 onApprove={onApprove}
                 onReject={onReject}
             />
         );
-    } else if (request) {
+    } else if (requests.length > 0) {
         return (
             <Request
-                request={request}
+                request={requests[0]}
                 onApprove={onApprove}
                 onReject={onReject}
             />
