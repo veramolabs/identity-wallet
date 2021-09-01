@@ -46,7 +46,7 @@ function Tabs() {
                 options={{ title: "Identitet" }}
             />
             <Tab.Screen
-                name="BankId"
+                name="Bankid"
                 component={BankId}
                 options={{ title: "BankID" }}
             />

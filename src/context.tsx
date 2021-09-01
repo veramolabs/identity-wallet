@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+import { BROK_HELPERS_VERIFIER } from "@env";
 import {
     IDataStore,
     IDIDManager,
@@ -21,6 +22,7 @@ import { SessionTypes } from "@walletconnect/types";
 import { ethers } from "ethers";
 import React, { createContext, useEffect, useState } from "react";
 import { DEFAULT_RPC_PROVIDER, DEFAULT_TEST_CHAINS } from "./constants/default";
+import { navigate } from "./navigation";
 import { useVeramo } from "./utils/useVeramo";
 import { useWalletconnect } from "./utils/useWalletconnect";
 
@@ -83,12 +85,63 @@ export const ContextProvider = (props: any) => {
     );
     const veramo = useVeramo(selectedChain);
     const walletconnect = useWalletconnect(chains, veramo);
+    const [hasTrustedIndentity, setHasTrustedIndentity] = useState<boolean>();
 
+    // Loading
     useEffect(() => {
         if (walletconnect.client) {
             setLoading(false);
         }
     }, [walletconnect.client]);
+
+    // Check if user got indetifier
+    useEffect(() => {
+        let subscribed = true;
+        const doAsync = async () => {
+            if (veramo.identity) {
+                const vc = await veramo
+                    .findVC({
+                        where: [
+                            {
+                                column: "issuer",
+                                value: [BROK_HELPERS_VERIFIER],
+                            },
+                            {
+                                column: "subject",
+                                value: [veramo.identity?.did],
+                            },
+                        ],
+                    })
+                    .catch((err) => {
+                        console.error(err.message);
+                        throw err;
+                    });
+                const hasRegistered = vc.find((vc) => {
+                    // console.log(vc.verifiableCredential.credentialSubject);
+                    return (
+                        "brregRegistered" in
+                        vc.verifiableCredential.credentialSubject
+                    );
+                });
+                console.info("hasTrustedIndentity", !!hasRegistered);
+                setHasTrustedIndentity(!!hasRegistered);
+            }
+            if (subscribed) {
+            }
+        };
+        doAsync();
+        return () => {
+            subscribed = false;
+        };
+    }, [veramo, veramo.identity]);
+
+    // navigate user if not got identifier
+    useEffect(() => {
+        if (hasTrustedIndentity === false) {
+            // TODO - @Asbjørn - Make toast about going to bankID
+            navigate("Bankid");
+        }
+    }, [hasTrustedIndentity]);
 
     // Make the context object:
     const context: IContext = {
