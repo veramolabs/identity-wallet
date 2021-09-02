@@ -68,7 +68,7 @@ export const BankidWebview: React.FC<Props> = ({ ...props }) => {
                     props.onSuccess(id_token);
                     return;
                 }
-                props.onError("ERROR handling not implemented"); // TODO Fix error handling
+                //props.onError("ERROR handling not implemented"); // TODO Fix error handling
             }
         }
     };
