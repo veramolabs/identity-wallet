@@ -37,6 +37,7 @@ export type Agent = TAgent<
 export type Dispatch<T = any> = React.Dispatch<React.SetStateAction<T>>;
 
 export interface IContext {
+    isTest: boolean;
     loading: boolean;
     chains: string[];
     accounts: string[];
@@ -74,6 +75,7 @@ export interface IContext {
 export const Context = createContext<IContext>(undefined!);
 
 export const ContextProvider = (props: any) => {
+    const [isTest] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [chains] = useState<string[]>(DEFAULT_TEST_CHAINS);
     const [selectedChain, setSelectedChain] = useState(DEFAULT_TEST_CHAINS[0]);
@@ -145,6 +147,7 @@ export const ContextProvider = (props: any) => {
 
     // Make the context object:
     const context: IContext = {
+        isTest,
         loading,
         chains,
         provider,
