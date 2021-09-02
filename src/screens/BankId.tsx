@@ -1,24 +1,21 @@
+import { BROK_HELPERS_URL, BROK_HELPERS_VERIFIER } from "@env";
 import axios, { AxiosError } from "axios";
-import React, { useEffect, useState } from "react";
-import { useContext } from "react";
+import { decodeJWT as decodeJWT2 } from "did-jwt";
+import React, { useContext, useEffect, useState } from "react";
 import {
+    ActivityIndicator,
     SafeAreaView,
     StatusBar,
     StyleSheet,
-    View,
     Text,
     TextInput,
     TouchableOpacity,
-    ActivityIndicator,
+    View,
 } from "react-native";
 import { BankidWebview } from "../components/bankid/BankidWebview";
 import { Context } from "../context";
-import { BROK_HELPERS_URL, BROK_HELPERS_VERIFIER } from "@env";
-import { VerifiableCredential } from "@veramo/core";
-import { ethers } from "ethers";
-import { decodeJWT as decodeJWT2 } from "did-jwt";
-import { BankidJWTPayload } from "./../types/bankid";
 import { goBack } from "../navigation";
+import { BankidJWTPayload } from "./../types/bankid";
 
 const TESTING = false;
 
@@ -69,7 +66,7 @@ export const BankId = () => {
             const res = await axios
                 .post<string>(
                     `${
-                        true ? "http://localhost:3004" : BROK_HELPERS_URL
+                        TESTING ? "http://localhost:3004" : BROK_HELPERS_URL
                     }/brreg/entity/register`,
                     {
                         jwt: vp.proof.jwt,
