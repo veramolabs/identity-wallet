@@ -3,8 +3,6 @@ import { UniqueVerifiableCredential } from "@veramo/data-store";
 import { format, parseISO } from "date-fns";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { fontStyles } from "../styles/font";
-import { Icon } from "react-native-elements";
 
 interface Props {
     vc: UniqueVerifiableCredential;
@@ -20,27 +18,23 @@ export const VCCard: React.FC<Props> = ({ ...props }) => {
         <View style={styles.vcCard}>
             <View style={styles.vcCardLeftColumn}>
                 <View style={styles.row}>
-                    <Text style={fontStyles.subtitle1}>Issuer</Text>
+                    <Text>Issuer</Text>
                     <Text
                         style={{
-                            ...fontStyles.body2,
                             marginStart: 10,
                         }}>
                         {vc.verifiableCredential.issuer.id.substring(0, 20)}
                     </Text>
                 </View>
                 <View style={styles.row}>
-                    <Text style={fontStyles.subtitle1}>Type</Text>
-                    <Text
-                        style={{
-                            ...fontStyles.body2,
-                        }}>
+                    <Text>Type</Text>
+                    <Text style={{}}>
                         {vc.verifiableCredential.type.join(`${"\n"}`)}
                     </Text>
                 </View>
                 <View style={styles.row}>
-                    <Text style={fontStyles.subtitle1}>Issued</Text>
-                    <Text style={fontStyles.body2}>
+                    <Text>Issued</Text>
+                    <Text>
                         {format(
                             parseISO(vc.verifiableCredential.issuanceDate),
                             "HH.mm dd.MM.yyyy"
@@ -49,12 +43,12 @@ export const VCCard: React.FC<Props> = ({ ...props }) => {
                 </View>
             </View>
             <View style={styles.vcCardRightColumn}>
-                <Icon
+                {/* <Icon
                     name="face"
                     type="material"
                     size={30}
                     onPress={() => setExpanded(!expanded)}
-                />
+                /> */}
             </View>
         </View>
     );

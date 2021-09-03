@@ -2,13 +2,11 @@ import { useTheme } from "@react-navigation/native";
 import { UniqueVerifiableCredential } from "@veramo/data-store";
 import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
-import { format, parseISO } from "date-fns";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { Sessions } from "../components/modals/Sessions";
 import { VCCard } from "../components/VCCard";
 import { Context } from "../context";
-import { fontStyles } from "../styles/font";
 
 export const Settings = () => {
     const { colors } = useTheme();
@@ -60,7 +58,7 @@ export const Settings = () => {
         <>
             <SafeAreaView style={styles.container}>
                 <View>
-                    <Text style={fontStyles.h1}>Sesjoner</Text>
+                    <Text>Sesjoner</Text>
                     {sessions.length > 0 ? (
                         <Sessions
                             sessions={sessions}
@@ -73,7 +71,7 @@ export const Settings = () => {
                         </View>
                     )}
                 </View>
-                <Text style={fontStyles.h1}>Verifiable credentials</Text>
+                <Text>Verifiable credentials</Text>
                 {userVcs.length > 0 ? (
                     <>
                         {userVcs.map((v) => (
