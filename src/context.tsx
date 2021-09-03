@@ -113,10 +113,10 @@ export const ContextProvider = (props: any) => {
 
     // Loading
     useEffect(() => {
-        if (walletconnect.client) {
+        if (veramo.accounts.length > 0) {
             setLoading(false);
         }
-    }, [walletconnect.client]);
+    }, [veramo.accounts]);
 
     // Check if user got indetifier
     useEffect(() => {
