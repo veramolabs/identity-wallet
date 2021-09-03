@@ -4,7 +4,11 @@ export const TestnetTheme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
-        primary: "#e64a19",
+        primary: "#66bb6a",
+        secondary: "#ffc400",
+        card: "#FFF",
+        onPrimary: "#FFF",
+        onSecondary: ""
     },
 };
 
@@ -12,6 +16,7 @@ export const MainnetTheme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
-        primary: "#e64a19",
+        primary: "#ec407a",
+        card: "#FFF"
     },
 };
