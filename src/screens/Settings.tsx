@@ -74,10 +74,10 @@ export const Settings = () => {
                 <Text>Verifiable credentials</Text>
                 {userVcs.length > 0 ? (
                     <>
-                        {userVcs.map((v) => (
-                            <VCCard vc={v} />
+                        {userVcs.map((v, i) => {
+                            return <VCCard key={i} vc={v} />;
                             // </View>
-                        ))}
+                        })}
                     </>
                 ) : (
                     <View>
