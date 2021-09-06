@@ -1,9 +1,11 @@
 import { useTheme } from "@react-navigation/native";
+import { VerifiablePresentation } from "@veramo/core/build/types/IMessage";
 import { UniqueVerifiableCredential } from "@veramo/data-store";
 import { format, parseISO } from "date-fns";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "react-native-elements";
+import { Card } from "react-native-elements/dist/card/Card";
 
 interface Props {
     vc: UniqueVerifiableCredential;
@@ -17,7 +19,11 @@ export const VCCard: React.FC<Props> = ({ ...props }) => {
     console.log("exp", expanded);
 
     return (
-        <View style={expanded ? styles.cardExpanded : styles.cardCollapsed}>
+        <View
+            style={{
+                ...styles.card,
+                ...(expanded ? styles.cardExpanded : styles.cardCollapsed),
+            }}>
             <View style={styles.basicInfo}>
                 <View style={styles.vcCardLeftColumn}>
                     <View style={styles.row}>
@@ -93,8 +99,16 @@ export const VCCard: React.FC<Props> = ({ ...props }) => {
 
 const makeStyles = (colors: any) =>
     StyleSheet.create({
+        card: {
+            backgroundColor: colors.primary,
+            flex: 1,
+            marginVertical: 10,
+            justifyContent: "flex-start",
+            borderRadius: 5,
+        },
         row: {
             flex: 1,
+            marginVertical: 5,
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
@@ -113,27 +127,17 @@ const makeStyles = (colors: any) =>
             minHeight: 60,
             flex: 1,
             justifyContent: "space-between",
-            marginVertical: 1,
         },
         extraInfo: {
+            flex: 1,
             flexDirection: "row",
             minHeight: 40,
         },
         cardCollapsed: {
-            backgroundColor: colors.primary,
-            flex: 1,
             minHeight: 60,
-            marginVertical: 10,
-            justifyContent: "space-between",
-            borderRadius: 5,
         },
         cardExpanded: {
-            backgroundColor: colors.primary,
-            flex: 1,
             minHeight: 100,
-            marginVertical: 10,
-            justifyContent: "space-between",
-            borderRadius: 5,
         },
         vcCardLeftColumn: {
             paddingHorizontal: 10,

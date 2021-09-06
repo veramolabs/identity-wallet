@@ -3,7 +3,8 @@ import { UniqueVerifiableCredential } from "@veramo/data-store";
 import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import React, { useContext, useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "react-native-elements";
 import { Sessions } from "../components/modals/Sessions";
 import { VCCard } from "../components/VCCard";
 import { Context } from "../context";
@@ -57,33 +58,37 @@ export const Settings = () => {
     return (
         <>
             <SafeAreaView style={styles.container}>
-                <View>
-                    <Text>Sesjoner</Text>
-                    {sessions.length > 0 ? (
-                        <Sessions
-                            sessions={sessions}
-                            resetCard={() => {}}
-                            closeSession={closeSession}
-                        />
-                    ) : (
-                        <View>
-                            <Text>Ingen sesjoner</Text>
-                        </View>
-                    )}
-                </View>
-                <Text>Verifiable credentials</Text>
-                {userVcs.length > 0 ? (
-                    <>
-                        {userVcs.map((v, i) => {
-                            return <VCCard key={i} vc={v} />;
-                            // </View>
-                        })}
-                    </>
-                ) : (
-                    <View>
-                        <Text>Ingen VC'er</Text>
+                <ScrollView>
+                    <View style={styles.sessions}>
+                        <Text h2>Sesjoner</Text>
+                        {sessions.length > 0 ? (
+                            <Sessions
+                                sessions={sessions}
+                                resetCard={() => {}}
+                                closeSession={closeSession}
+                            />
+                        ) : (
+                            <View>
+                                <Text>Ingen sesjoner</Text>
+                            </View>
+                        )}
                     </View>
-                )}
+                    <View style={styles.verifiableCredentials}>
+                        <Text h2>Verifiable credentials</Text>
+                        {userVcs.length > 0 ? (
+                            <>
+                                {userVcs.map((v, i) => {
+                                    return <VCCard key={i} vc={v} />;
+                                    // </View>
+                                })}
+                            </>
+                        ) : (
+                            <View>
+                                <Text>Ingen VC'er</Text>
+                            </View>
+                        )}
+                    </View>
+                </ScrollView>
             </SafeAreaView>
         </>
     );
@@ -96,5 +101,13 @@ const makeStyles = (colors: any) =>
             flex: 1,
             padding: 10,
             justifyContent: "center",
+        },
+        sessions: {
+            flex: 1,
+            marginBottom: 20,
+        },
+        verifiableCredentials: {
+            flex: 1,
+            marginBottom: 20,
         },
     });
