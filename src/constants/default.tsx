@@ -23,7 +23,7 @@ export const DEFAULT_EIP155_METHODS = [
     "eth_signTransaction",
     "oracle_data",
     "did_createVerifiableCredential",
-    "did_requestVerfiableCredential",
+    "did_requestVerifiableCredential",
     "symfoni_privateTransferByPartition",
 ];
 

@@ -28,15 +28,15 @@ export const Scanner = () => {
         if (!data.startsWith("wc:")) {
             return;
         }
-        // try {
-        //     if (typeof client === "undefined") {
-        //         return;
-        //     }
-        //     await client.pair({ uri: data });
-        // } catch (e) {
-        //     console.error(e);
-        //     return;
-        // }
+        try {
+            if (typeof client === "undefined") {
+                return;
+            }
+            await client.pair({ uri: data });
+        } catch (e) {
+            console.error(e);
+            return;
+        }
     }
 
     async function onTextInput(uri: string) {
