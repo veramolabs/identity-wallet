@@ -5,9 +5,9 @@ import { SessionTypes } from "@walletconnect/types";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "react-native-elements";
-import { Sessions } from "../components/modals/Sessions";
-import { VCCard } from "../components/VCCard";
-import { Context } from "../context";
+import { Sessions } from "../../components/modals/Sessions";
+import { VCCard } from "../../components/VCCard";
+import { Context } from "../../context";
 
 export const Settings = () => {
     const { colors } = useTheme();
