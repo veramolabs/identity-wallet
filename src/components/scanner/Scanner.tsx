@@ -53,11 +53,6 @@ export const Scanner = () => {
                         Scan WalletConnect QRcode
                     </Text>
                 }
-                bottomContent={
-                    <Text style={styles.centerText}>
-                        Scan WalletConnect QRcode
-                    </Text>
-                }
             />
             {isTest && (
                 <TextInput
