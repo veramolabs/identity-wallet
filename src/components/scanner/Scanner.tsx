@@ -1,24 +1,11 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useContext } from "react";
-import { Platform, StyleSheet, Text, TextInput } from "react-native";
+import { StyleSheet, Text, TextInput } from "react-native";
+import { color } from "react-native-elements/dist/helpers";
 import QRCodeScanner from "react-native-qrcode-scanner";
-import { Button } from "../ui/Button";
 import { Context } from "./../../context";
 
 export const Scanner = () => {
-    const { client } = useContext(Context);
-
-    const clearAsyncStorage = async () => {
-        const asyncStorageKeys = await AsyncStorage.getAllKeys();
-        if (asyncStorageKeys.length > 0) {
-            if (Platform.OS === "android") {
-                await AsyncStorage.clear();
-            }
-            if (Platform.OS === "ios") {
-                await AsyncStorage.multiRemove(asyncStorageKeys);
-            }
-        }
-    };
+    const { client, isTest } = useContext(Context);
 
     async function onRead(data: any) {
         console.log("onRead", data);
@@ -60,26 +47,35 @@ export const Scanner = () => {
             <QRCodeScanner
                 onRead={(e: any) => onRead(e.data)}
                 fadeIn={false}
+                showMarker={true}
                 topContent={
                     <Text style={styles.centerText}>
                         Scan WalletConnect QRcode
                     </Text>
                 }
+                bottomContent={
+                    <Text style={styles.centerText}>
+                        Scan WalletConnect QRcode
+                    </Text>
+                }
             />
-            <TextInput
-                style={styles.inputText}
-                placeholder="Eller skriv WC kode her"
-                onChangeText={(text: string) => onTextInput(text)}
-                defaultValue={""}
-                showSoftInputOnFocus={false}
-            />
-            {/* TODO : Only for test */}
-            <Button text="Reset storage" onPress={() => clearAsyncStorage()} />
+            {isTest && (
+                <TextInput
+                    style={styles.inputText}
+                    placeholder="Eller skriv WC kode her"
+                    onChangeText={(text: string) => onTextInput(text)}
+                    defaultValue={""}
+                    showSoftInputOnFocus={false}
+                />
+            )}
         </>
     );
 };
 
 export const styles = StyleSheet.create({
+    qrMarker: {
+        color: "red",
+    },
     inputText: {
         borderColor: "#ccc",
         backgroundColor: "#ccc",
