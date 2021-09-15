@@ -1,23 +1,29 @@
-import React, { useState } from "react";
+import { useTheme } from "@react-navigation/native";
+import React from "react";
 import {
-    TouchableOpacity,
-    Alert,
     Modal,
+    Pressable,
     StyleSheet,
     Text,
-    Pressable,
+    TouchableOpacity,
     View,
 } from "react-native";
+import { Buttons, Colors, Sizing, Typography } from "../../styles";
+import { borderRadius } from "../../styles/outlines";
 
 interface ModalProps {
     onRequestClose: () => void;
+    onDismissClick?: () => void;
     title: string;
     description?: string;
     icon?: React.ReactNode;
     onConfirmClick: () => void;
 }
 
-export const ConfirmModal = (props: ModalProps) => {
+export const SymfoniModal = (props: ModalProps) => {
+    const { colors } = useTheme();
+    const styles = makeStyles(colors);
+
     return (
         <View style={styles.centeredView}>
             <Modal animationType="none" transparent={true}>
@@ -25,17 +31,25 @@ export const ConfirmModal = (props: ModalProps) => {
                     style={styles.centeredView}
                     onPressOut={() => props.onRequestClose()}>
                     <View style={styles.modalView}>
-                        {props.icon}
-                        <Text style={styles.modalText}>{props.title}</Text>
-                        {props.description && <Text>{props.description}</Text>}
-                        <View
-                            style={{
-                                flexDirection: "row-reverse",
-                            }}>
+                        {props.icon && props.icon}
+                        <Text style={styles.title}>{props.title}</Text>
+                        {props.description && (
+                            <Text style={styles.body}>{props.description}</Text>
+                        )}
+                        <View style={styles.buttons}>
+                            {props.onDismissClick && (
+                                <Pressable
+                                    style={styles.dismissButton}
+                                    onPress={props.onConfirmClick}>
+                                    <Text style={styles.buttonText}>Avslå</Text>
+                                </Pressable>
+                            )}
                             <Pressable
-                                style={[styles.button, styles.buttonClose]}
+                                style={Buttons.applyOpacity(
+                                    styles.confirmButton
+                                )}
                                 onPress={props.onConfirmClick}>
-                                <Text style={styles.textStyle}>Ok</Text>
+                                <Text style={styles.buttonText}>Godkjenn</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -45,46 +59,53 @@ export const ConfirmModal = (props: ModalProps) => {
     );
 };
 
-const styles = StyleSheet.create({
-    centeredView: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 22,
-    },
-    modalView: {
-        margin: 20,
-        backgroundColor: "white",
-        borderRadius: 20,
-        padding: 35,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
+const makeStyles = (colors: any) =>
+    StyleSheet.create({
+        centeredView: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: Sizing.x10,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    button: {
-        borderRadius: 5,
-        padding: 10,
-        elevation: 2,
-    },
-    buttonOpen: {
-        backgroundColor: "#F194FF",
-    },
-    buttonClose: {
-        backgroundColor: "#2196F3",
-    },
-    textStyle: {
-        color: "white",
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    modalText: {
-        marginBottom: 15,
-        textAlign: "center",
-    },
-});
+        modalView: {
+            margin: Sizing.x20,
+            backgroundColor: colors.background,
+            borderRadius: borderRadius.large,
+            padding: Sizing.x40,
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: Sizing.layout.x7,
+            elevation: Sizing.layout.x5,
+        },
+        buttons: {
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginTop: Sizing.layout.x20,
+        },
+        buttonText: {
+            ...Buttons.barText.primary,
+        },
+        confirmButton: {
+            ...Buttons.bar.primary,
+            backgroundColor: Colors.success.s400,
+            flexShrink: 1,
+            marginBottom: Sizing.x10,
+        },
+        dismissButton: {
+            ...Buttons.bar.primary,
+            backgroundColor: Colors.danger.s400,
+            flexShrink: 1,
+            marginBottom: Sizing.x10,
+            marginEnd: 20,
+        },
+        title: {
+            ...Typography.header.x50,
+            marginBottom: Sizing.x10,
+        },
+        body: {
+            ...Typography.body.x40,
+        },
+    });
