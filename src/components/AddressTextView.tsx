@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { StyleProp, Text, View, ViewStyle } from "react-native";
 import { copy, shortenAddress } from "../utils/textUtil";
 
 interface Props {
+    style?: StyleProp<ViewStyle> | undefined;
     address: string;
 }
 
@@ -11,7 +12,9 @@ export const AddressTextView: React.FC<Props> = ({ ...props }) => {
 
     return (
         <>
-            <Text onPress={() => copy(props.address)}>{text}</Text>
+            <Text style={[props.style]} onPress={() => copy(props.address)}>
+                {text}
+            </Text>
         </>
     );
 };
