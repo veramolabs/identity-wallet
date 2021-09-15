@@ -1,6 +1,8 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import React from "react";
+import React, { useContext } from "react";
+import { TestnetTheme, MainnetTheme } from "../../constants/theme";
+import { Context } from "../../context";
 import { Developer } from "./Developer";
 import { Help } from "./Help";
 import { Legal } from "./Legal";
@@ -115,8 +117,12 @@ export function goBackProfile() {
 }
 
 export const ProfileNavigation = () => {
+    const { isTest } = useContext(Context);
     return (
-        <NavigationContainer ref={profileNavigationRef} independent={true}>
+        <NavigationContainer
+            ref={profileNavigationRef}
+            independent={true}
+            theme={isTest ? TestnetTheme : MainnetTheme}>
             <ProfileStack.Navigator
                 screenOptions={{
                     headerBackTitleVisible: false,

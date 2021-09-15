@@ -37,7 +37,13 @@ import { useVeramo } from "./utils/useVeramo";
 import { useWalletconnect } from "./utils/useWalletconnect";
 import { normalizePresentation } from "did-jwt-vc";
 import { ethers } from "ethers";
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import React, {
+    createContext,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
 import { registerForvalt } from "./components/presenter/ForvaltPresenter";
 import {
     DEFAULT_APP_METADATA,
@@ -60,6 +66,7 @@ export type Dispatch<T = any> = React.Dispatch<React.SetStateAction<T>>;
 
 export interface IContext {
     isTest: boolean;
+    setIsTest: React.Dispatch<SetStateAction<boolean>>;
     loading: boolean;
     chains: string[];
     accounts: string[];
@@ -97,7 +104,7 @@ export interface IContext {
 export const Context = createContext<IContext>(undefined!);
 
 export const ContextProvider = (props: any) => {
-    const [isTest] = useState(false);
+    const [isTest, setIsTest] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [chains] = useState<string[]>(DEFAULT_TEST_CHAINS);
     const [selectedChain, setSelectedChain] = useState(DEFAULT_TEST_CHAINS[0]);
@@ -172,6 +179,7 @@ export const ContextProvider = (props: any) => {
     // Make the context object:
     const context: IContext = {
         isTest,
+        setIsTest,
         loading,
         chains,
         provider,

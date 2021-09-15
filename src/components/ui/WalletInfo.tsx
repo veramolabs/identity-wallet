@@ -1,3 +1,4 @@
+import { useTheme } from "@react-navigation/native";
 import { BigNumber, ethers } from "ethers";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -6,18 +7,28 @@ import {
     Platform,
     StyleSheet,
     Text,
-    TouchableOpacity,
     View,
 } from "react-native";
+import { Buttons, Sizing, Typography } from "../../styles";
+import { body, header } from "../../styles/typography";
 import { AddressTextView } from "../AddressTextView";
 import { DidTextView } from "../DidTextView";
+import { SymfoniButton } from "../SymfoniButton";
 import { Context } from "./../../context";
 
 export const WalletInfo = () => {
-    const { accounts, provider, deleteVeramoData, identity } =
-        useContext(Context);
+    const {
+        isTest,
+        setIsTest,
+        accounts,
+        provider,
+        deleteVeramoData,
+        identity,
+    } = useContext(Context);
     const [balance, setBalance] = useState<BigNumber>(ethers.constants.Zero);
     const [address, setAddress] = useState(() => accounts[0].split(":").pop());
+    const { colors } = useTheme();
+    const styles = makeStyles(colors);
 
     useEffect(() => {
         const doAsync = async () => {
@@ -59,74 +70,97 @@ export const WalletInfo = () => {
                 Caution, be careful what you do here!
             </Text>
             <View style={styles.row}>
-                <Text>Adresse</Text>
-                <AddressTextView address={address} />
-            </View>
-            {/* <Text style={styles.infoText} onPress={() => copy(address)}>
-                {shortAddress}
-            </Text> */}
-
-            <View style={styles.row}>
-                <Text>Balanse</Text>
-                <Text>{ethers.utils.formatEther(balance)}</Text>
+                <Text style={styles.bodyText}>Adresse</Text>
+                <AddressTextView style={styles.bodyText} address={address} />
             </View>
             <View style={styles.row}>
-                <Text>DID</Text>
-                <DidTextView did={identity ? identity.did : "Ingen DID"} />
+                <Text style={styles.bodyText}>Balanse</Text>
+                <Text style={styles.bodyText}>
+                    {ethers.utils.formatEther(balance)}
+                </Text>
+            </View>
+            <View style={styles.row}>
+                <Text style={styles.bodyText}>DID</Text>
+                <DidTextView
+                    style={styles.bodyText}
+                    did={identity ? identity.did : "Ingen DID"}
+                />
             </View>
 
             <View style={styles.buttons}>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => deleteVeramoData()}>
-                    <Text style={styles.buttonText}>Delete veramo</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => clearAsyncStorage()}>
-                    <Text style={styles.buttonText}>Delete Local data</Text>
-                </TouchableOpacity>
+                <SymfoniButton
+                    style={{ marginEnd: 10, maxHeight: 100, maxWidth: 200 }}
+                    type="primary"
+                    text="Delete Veramo"
+                    onPress={() => deleteVeramoData()}
+                />
+                <SymfoniButton
+                    style={{ marginEnd: 10, maxHeight: 100, maxWidth: 200 }}
+                    type="primary"
+                    text="Delete Local Data"
+                    onPress={() => clearAsyncStorage()}
+                />
+            </View>
+            <View>
+                <View style={styles.row}>
+                    <Text style={styles.title}>Modus</Text>
+                </View>
+                <SymfoniButton
+                    text={isTest ? "Endre til mainnet" : "Endre til test"}
+                    type="primary"
+                    onPress={() => {
+                        console.log("Test", isTest);
+                        setIsTest(!isTest);
+                    }}
+                />
             </View>
         </View>
     );
 };
 
-const styles = StyleSheet.create({
-    title: {
-        fontSize: 34,
-        marginBottom: 5,
-    },
-    subtitle: {
-        fontSize: 16,
-        marginBottom: 40,
-    },
-    grid: {
-        flex: 1,
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        margin: 10,
-        padding: 30,
-    },
-    row: {
-        marginBottom: 10,
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-    buttons: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        margin: 10,
-    },
-    button: {
-        alignSelf: "center",
-        backgroundColor: "blue",
-        padding: 10,
-        marginVertical: 20,
-        borderRadius: 5,
-    },
-    buttonText: {
-        color: "#FFF",
-        fontSize: 16,
-    },
-});
+const makeStyles = (colors: any) => {
+    return StyleSheet.create({
+        title: {
+            ...header.x70,
+            marginBottom: 5,
+            color: colors.text,
+        },
+        subtitle: {
+            ...body.x20,
+            marginBottom: 40,
+            color: colors.text,
+        },
+        grid: {
+            backgroundColor: colors.background,
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            margin: Sizing.layout.x5,
+            padding: Sizing.layout.x30,
+        },
+        row: {
+            marginBottom: Sizing.layout.x10,
+            flexDirection: "row",
+            justifyContent: "space-between",
+        },
+        buttons: {
+            flexDirection: "row",
+            justifyContent: "space-around",
+            margin: Sizing.layout.x10,
+            marginBottom: 45,
+        },
+        button: {
+            ...Buttons.bar.primary,
+            alignSelf: "center",
+            marginVertical: Sizing.layout.x20,
+            borderRadius: Sizing.layout.x5,
+        },
+        buttonText: {
+            ...Buttons.barText.primary,
+        },
+        bodyText: {
+            ...Typography.body.x30,
+            color: colors.text,
+        },
+    });
+};

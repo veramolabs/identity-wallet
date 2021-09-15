@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
 import { useContext } from "react";
@@ -14,6 +14,7 @@ import { Identity } from "./screens/Identity";
 import Modal from "./screens/Modal";
 import { ProfileNavigation } from "./screens/Profile/profileNavigation";
 import { ScannerScreen } from "./screens/ScannerScreen";
+import { Colors } from "./styles";
 
 export const navigationRef = React.createRef<any>();
 
@@ -56,6 +57,7 @@ const PROFILE_ROUTE: Route = {
 };
 
 function Tabs() {
+    const { colors } = useTheme();
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -79,8 +81,9 @@ function Tabs() {
                         />
                     );
                 },
-                tabBarActiveTintColor: "tomato",
+                tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: "gray",
+                tabBarStyle: { backgroundColor: colors.card },
             })}>
             <Tab.Screen
                 name={HOME_ROUTE.routeId}
@@ -115,14 +118,10 @@ function Tabs() {
 }
 
 export const Navigation = () => {
-    const { selectedChain } = useContext(Context);
+    const { selectedChain, isTest } = useContext(Context);
     return (
         <NavigationContainer
-            theme={
-                DEFAULT_TEST_CHAINS.includes(selectedChain)
-                    ? TestnetTheme
-                    : MainnetTheme
-            }
+            theme={isTest ? TestnetTheme : MainnetTheme}
             ref={navigationRef}>
             <Stack.Navigator>
                 <Stack.Screen

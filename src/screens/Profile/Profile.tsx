@@ -1,10 +1,14 @@
 import { useTheme } from "@react-navigation/native";
+import { startOfYesterday } from "date-fns";
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "react-native-elements";
 import { color } from "react-native-elements/dist/helpers";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Divider } from "../../components/Divider";
+import { Colors, Sizing, Typography } from "../../styles";
+import { layout } from "../../styles/sizing";
 import {
     isDivider,
     Item,
@@ -46,20 +50,20 @@ export const Profile = () => {
                                 style={{
                                     flexDirection: "row",
                                     flex: 1,
-                                    marginLeft: 10,
+                                    marginLeft: layout.x10,
                                 }}>
                                 <Icon
                                     name={routeItem.iconName}
-                                    size={30}
-                                    color="tomato"
+                                    size={Sizing.icons.x30}
+                                    color={colors.notification}
                                 />
                             </View>
                             <View style={styles.profileRowTextColumn}>
-                                <Text style={{ fontWeight: "bold" }}>
+                                <Text style={styles.title}>
                                     {routeItem.title}
                                 </Text>
                                 {!!routeItem.subtitle && (
-                                    <Text style={{ color: "gray" }}>
+                                    <Text style={styles.subtitle}>
                                         {routeItem.subtitle}
                                     </Text>
                                 )}
@@ -73,17 +77,18 @@ export const Profile = () => {
     );
 };
 
-const makeStyles = (colors: any) =>
-    StyleSheet.create({
+const makeStyles = (colors: any) => {
+    return StyleSheet.create({
         container: {
             flex: 1,
             flexDirection: "column",
-            padding: 20,
+            paddingHorizontal: 10,
+            paddingVertical: 30,
         },
         profileRow: {
             flex: 1,
             flexDirection: "row",
-            marginVertical: 30,
+            marginVertical: 20,
             alignItems: "center",
         },
         profileRowTextColumn: {
@@ -91,4 +96,13 @@ const makeStyles = (colors: any) =>
             flexDirection: "column",
             justifyContent: "center",
         },
+        title: {
+            ...Typography.subheader.x20,
+            color: colors.text,
+        },
+        subtitle: {
+            ...Typography.body.x20,
+            color: Colors.neutral.white,
+        },
     });
+};
