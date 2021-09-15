@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { BROK_HELPERS_VERIFIER } from "@env";
+import { BROK_HELPERS_VERIFIER, IS_TEST } from "@env";
 // import axios from "axios";
 // import Wallet from "caip-wallet";
 // import Client from "@walletconnect/client";
@@ -42,9 +42,11 @@ import { registerForvalt } from "./components/presenter/ForvaltPresenter";
 import {
     DEFAULT_APP_METADATA,
     DEFAULT_EIP155_METHODS,
-    DEFAULT_RPC_PROVIDER,
+    DEFAULT_RPC_PROVIDER_TEST,
     DEFAULT_RELAY_PROVIDER,
     DEFAULT_TEST_CHAINS,
+    DEFAULT_MAIN_CHAINS,
+    DEFAULT_RPC_PROVIDER_MAIN,
 } from "./constants/default";
 import { goBack, navigate } from "./navigation";
 
@@ -97,14 +99,20 @@ export interface IContext {
 export const Context = createContext<IContext>(undefined!);
 
 export const ContextProvider = (props: any) => {
-    const [isTest] = useState(false);
+    const [isTest] = useState(IS_TEST ? true : false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [chains] = useState<string[]>(DEFAULT_TEST_CHAINS);
-    const [selectedChain, setSelectedChain] = useState(DEFAULT_TEST_CHAINS[0]);
+    const [chains] = useState<string[]>(
+        isTest ? DEFAULT_TEST_CHAINS : DEFAULT_MAIN_CHAINS
+    );
+    const [selectedChain, setSelectedChain] = useState(
+        isTest ? DEFAULT_TEST_CHAINS[0] : DEFAULT_MAIN_CHAINS[0]
+    );
     const [provider] = useState(
         () =>
             new ethers.providers.JsonRpcProvider({
-                url: DEFAULT_RPC_PROVIDER,
+                url: isTest
+                    ? DEFAULT_RPC_PROVIDER_TEST
+                    : DEFAULT_RPC_PROVIDER_MAIN,
             })
     );
     const veramo = useVeramo(selectedChain);

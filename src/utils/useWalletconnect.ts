@@ -160,10 +160,6 @@ export const useWalletconnect = (
                     response = formatJsonRpcResult(event.request.id, result);
                 }
                 if (event.request.method === "did_createVerifiableCredential") {
-                    console.log(
-                        "requestEvent.request.params[0",
-                        event.request.params[0]
-                    );
                     if (!event.request.params[0].payload) {
                         throw Error("Requires payload parameter");
                     }
