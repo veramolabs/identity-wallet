@@ -2,7 +2,7 @@ import { VerifiablePresentation } from "@veramo/core";
 import { normalizePresentation } from "did-jwt-vc";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Button } from "./ui/Button";
+import { SymfoniButton } from "../ui/button/SymfoniButton";
 import { VerifiableCredentialView } from "./VerifiableCredentialView";
 
 interface Props {
@@ -48,14 +48,14 @@ export const VPApprovalView: React.FC<Props> = ({ ...props }) => {
                 <Text>hei</Text>;
             })} */}
             <View style={styles.actions}>
-                <Button
+                <SymfoniButton
                     text="Reject"
-                    color="red"
+                    type="danger"
                     onPress={() => props.onReject()}
                 />
-                <Button
+                <SymfoniButton
                     text="Approve"
-                    color="green"
+                    type="success"
                     onPress={() => props.onApprove()}
                 />
             </View>

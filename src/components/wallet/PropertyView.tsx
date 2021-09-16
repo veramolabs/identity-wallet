@@ -1,7 +1,7 @@
 import { decodeJWT } from "did-jwt";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { BankidJWTPayload } from "../types/bankid";
+import { BankidJWTPayload } from "../../types/bankid";
 
 interface Props {
     property: string;

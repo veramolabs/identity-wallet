@@ -5,12 +5,14 @@ import { SessionTypes } from "@walletconnect/types";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "react-native-elements";
-import { Sessions } from "../../components/modals/Sessions";
-import { VCCard } from "../../components/VCCard";
+import { ColorContext, ColorSystem } from "../../colorContext";
+import { Sessions } from "../../components/wallet";
+import { VCCard } from "../../components/wallet/VCCard";
 import { Context } from "../../context";
 
 export const Settings = () => {
-    const { colors } = useTheme();
+    // const { colors } = useTheme();
+    const { colors } = useContext(ColorContext);
     const styles = makeStyles(colors);
     const { client, closeSession, findVC } = useContext(Context);
     const [sessions, setSessions] = useState<SessionTypes.Settled[]>([]);
@@ -38,7 +40,6 @@ export const Settings = () => {
         }
         setSessions(client.session.values);
         client.on(CLIENT_EVENTS.pairing.deleted, (some: any) => {
-            console.log("deleted", some);
             console.log("subscribed", subscribed);
             if (subscribed) {
                 setSessions(client.session.values);
@@ -79,7 +80,6 @@ export const Settings = () => {
                             <>
                                 {userVcs.map((v, i) => {
                                     return <VCCard key={i} vc={v} />;
-                                    // </View>
                                 })}
                             </>
                         ) : (
@@ -94,7 +94,7 @@ export const Settings = () => {
     );
 };
 
-const makeStyles = (colors: any) =>
+const makeStyles = (colors: ColorSystem) =>
     StyleSheet.create({
         container: {
             margin: 20,

@@ -4,7 +4,7 @@ import { UniqueVerifiableCredential } from "@veramo/data-store";
 import { format, parseISO } from "date-fns";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Icon } from "react-native-elements";
+import { getIconType, Icon } from "react-native-elements";
 import { Card } from "react-native-elements/dist/card/Card";
 
 interface Props {
@@ -17,6 +17,18 @@ export const VCCard: React.FC<Props> = ({ ...props }) => {
     const styles = makeStyles(colors);
     const [expanded, setExpanded] = useState<Boolean>(false);
     console.log("exp", expanded);
+
+    const getIcon = (vcString: string) => {
+        switch (vcString) {
+            case "VerifiableCredential":
+                return "lock";
+            case "PersonCredential":
+                return "verified-user";
+            default:
+                console.log("Unregocnized vc:", vcString);
+                return "info";
+        }
+    };
 
     return (
         <View
@@ -53,24 +65,15 @@ export const VCCard: React.FC<Props> = ({ ...props }) => {
                 </View>
                 <View style={styles.vcCardRightColumn}>
                     <View style={styles.vcTypesIcons}>
-                        {vc.verifiableCredential.type.map((vcType) => {
-                            if (vcType === "PersonCredential") {
-                                return (
-                                    <Icon
-                                        name="face"
-                                        type="material"
-                                        size={30}
-                                    />
-                                );
-                            } else if (vcType === "VerifiableCredential") {
-                                return (
-                                    <Icon
-                                        name="verified-user"
-                                        type="material"
-                                        size={30}
-                                    />
-                                );
-                            }
+                        {vc.verifiableCredential.type.map((vcType, i) => {
+                            return (
+                                <Icon
+                                    key={i}
+                                    name={getIcon(vcType)}
+                                    type="material"
+                                    size={30}
+                                />
+                            );
                         })}
                     </View>
                     <View>

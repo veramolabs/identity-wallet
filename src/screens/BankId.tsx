@@ -15,11 +15,11 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { BankidWebview } from "../components/bankid/BankidWebview";
-import { registerForvalt } from "../components/presenter/ForvaltPresenter";
-import { VPApprovalView } from "../components/VPApprovalView";
+import { registerForvalt } from "../presenter/ForvaltPresenter";
 import { Context } from "../context";
 import { goBack } from "../navigation";
 import { BankidJWTPayload } from "./../types/bankid";
+import { VPApprovalView } from "../components/wallet";
 
 export const BankId = () => {
     const { createVC, createVP, decodeJWT, identity, findVC, saveVP, isTest } =

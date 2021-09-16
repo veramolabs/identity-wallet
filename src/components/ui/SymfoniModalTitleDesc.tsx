@@ -12,15 +12,14 @@ import { Buttons, Colors, Sizing, Typography } from "../../styles";
 import { borderRadius } from "../../styles/outlines";
 
 interface ModalProps {
-    onRequestClose: () => void;
+    onRequestClose?: () => void;
     onDismissClick?: () => void;
     title: string;
     description?: string;
-    icon?: React.ReactNode;
     onConfirmClick: () => void;
 }
 
-export const SymfoniModal = (props: ModalProps) => {
+export const SymfoniModalTitleDesc = (props: ModalProps) => {
     const { colors } = useTheme();
     const styles = makeStyles(colors);
 
@@ -29,9 +28,10 @@ export const SymfoniModal = (props: ModalProps) => {
             <Modal animationType="none" transparent={true}>
                 <TouchableOpacity
                     style={styles.centeredView}
-                    onPressOut={() => props.onRequestClose()}>
+                    onPressOut={() =>
+                        props.onRequestClose && props.onRequestClose()
+                    }>
                     <View style={styles.modalView}>
-                        {props.icon && props.icon}
                         <Text style={styles.title}>{props.title}</Text>
                         {props.description && (
                             <Text style={styles.body}>{props.description}</Text>

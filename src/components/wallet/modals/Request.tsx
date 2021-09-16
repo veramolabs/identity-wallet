@@ -2,11 +2,12 @@ import React, { useState, useEffect, useContext } from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { SessionTypes, AppMetadata } from "@walletconnect/types";
 
-import { Context } from "./../../context";
-import { Button } from "./../ui/Button";
-import { Metadata } from "./../ui/Metadata";
-import { Blockchain } from "./../ui/Blockchain";
+import { Context } from "../../../context";
+import { Button } from "../../ui/button/Button";
+import { Blockchain } from "../Blockchain";
 import { ScrollView } from "react-native-gesture-handler";
+import { SymfoniButton } from "../../ui/button/SymfoniButton";
+import { Metadata } from "../Metadata";
 
 interface RequestProps {
     request: SessionTypes.RequestEvent;
@@ -70,14 +71,14 @@ export const Request = (props: RequestProps) => {
                         </Text>
                     </View>
                     <View style={styles.actions}>
-                        <Button
+                        <SymfoniButton
                             text="Reject"
-                            color="red"
+                            type="danger"
                             onPress={() => onReject(props.request)}
                         />
-                        <Button
+                        <SymfoniButton
                             text="Approve"
-                            color="green"
+                            type="success"
                             onPress={() => onApprove(props.request)}
                         />
                     </View>

@@ -1,12 +1,9 @@
 import { useTheme } from "@react-navigation/native";
-import { startOfYesterday } from "date-fns";
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "react-native-elements";
-import { color } from "react-native-elements/dist/helpers";
+import { Divider } from "react-native-elements/dist/divider/Divider";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Divider } from "../../components/Divider";
 import { Colors, Sizing, Typography } from "../../styles";
 import { layout } from "../../styles/sizing";
 import {

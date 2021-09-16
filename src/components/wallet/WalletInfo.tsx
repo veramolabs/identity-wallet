@@ -11,10 +11,14 @@ import {
 } from "react-native";
 import { Buttons, Sizing, Typography } from "../../styles";
 import { body, header } from "../../styles/typography";
-import { AddressTextView } from "../AddressTextView";
-import { DidTextView } from "../DidTextView";
-import { SymfoniButton } from "../SymfoniButton";
-import { Context } from "./../../context";
+import { Context } from "../../context";
+import { SymfoniButton } from "../ui/button";
+import { AddressTextView, DidTextView } from "../ui/text";
+import {
+    ColorContext,
+    ColorContextProvider,
+    ColorSystem,
+} from "../../colorContext";
 
 export const WalletInfo = () => {
     const {
@@ -27,7 +31,8 @@ export const WalletInfo = () => {
     } = useContext(Context);
     const [balance, setBalance] = useState<BigNumber>(ethers.constants.Zero);
     const [address, setAddress] = useState(() => accounts[0].split(":").pop());
-    const { colors } = useTheme();
+    // const { colors } = useTheme();
+    const { colors, toggleDarkMode } = useContext(ColorContext);
     const styles = makeStyles(colors);
 
     useEffect(() => {
@@ -109,6 +114,7 @@ export const WalletInfo = () => {
                     text={isTest ? "Endre til mainnet" : "Endre til test"}
                     type="primary"
                     onPress={() => {
+                        toggleDarkMode();
                         console.log("Test", isTest);
                         setIsTest(!isTest);
                     }}
@@ -118,17 +124,17 @@ export const WalletInfo = () => {
     );
 };
 
-const makeStyles = (colors: any) => {
+const makeStyles = (colors: ColorSystem) => {
     return StyleSheet.create({
         title: {
             ...header.x70,
             marginBottom: 5,
-            color: colors.text,
+            color: colors.onBackground,
         },
         subtitle: {
             ...body.x20,
             marginBottom: 40,
-            color: colors.text,
+            color: colors.onBackground,
         },
         grid: {
             backgroundColor: colors.background,
@@ -160,7 +166,7 @@ const makeStyles = (colors: any) => {
         },
         bodyText: {
             ...Typography.body.x30,
-            color: colors.text,
+            color: colors.onBackground,
         },
     });
 };

@@ -1,10 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { SessionTypes } from "@walletconnect/types";
-
-import { Button } from "./../ui/Button";
-import { Blockchain } from "./../ui/Blockchain";
-import { Metadata } from "./../ui/Metadata";
+import { Blockchain } from "../Blockchain";
+import { SymfoniButton } from "../../ui/button/SymfoniButton";
+import { Metadata } from "../Metadata";
 
 interface ProposalProps {
     proposal: SessionTypes.Proposal;
@@ -46,14 +45,14 @@ export const Proposal = (props: ProposalProps) => {
                 </View>
             </View>
             <View style={styles.actions}>
-                <Button
+                <SymfoniButton
+                    type="danger"
                     text="Reject"
-                    color="red"
                     onPress={() => onReject(proposal)}
                 />
-                <Button
+                <SymfoniButton
                     text="Approve"
-                    color="green"
+                    type="success"
                     onPress={() => onApprove(proposal)}
                 />
             </View>

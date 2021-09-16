@@ -2,8 +2,8 @@ import { SessionTypes } from "@walletconnect/types";
 import { formatDistanceToNow } from "date-fns";
 import React from "react";
 import { Image, Text, View } from "react-native";
-import { Session } from "../Session";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button/Button";
+import { Session } from "./Session";
 
 interface Props {
     sessions: SessionTypes.Settled[];

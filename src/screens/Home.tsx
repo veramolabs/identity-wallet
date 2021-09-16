@@ -10,7 +10,7 @@ import {
     View,
 } from "react-native";
 import { Context } from "../context";
-import { navigate } from "./../navigation";
+import { navigate } from "../navigation";
 
 export const Home = () => {
     const { loading, client, closeSession } = useContext(Context);

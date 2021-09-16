@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleProp, Text, ViewStyle } from "react-native";
-import { copy, shortenDid } from "../utils/textUtil";
+import { shortenDid, copy } from "../../../utils/textUtil";
 
 interface Props {
     style?: StyleProp<ViewStyle> | undefined;

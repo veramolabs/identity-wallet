@@ -2,8 +2,8 @@ import { SessionTypes } from "@walletconnect/types";
 import { formatDistanceToNow } from "date-fns";
 import React, { useState } from "react";
 import { Image, Text, View } from "react-native";
-import { Button } from "./ui/Button";
-import { ConfirmModal } from "./ui/Modal";
+import { SymfoniModalTitleDesc } from "../ui";
+import { Button } from "../ui/button/Button";
 
 interface SessionProps {
     session: SessionTypes.Settled;
@@ -54,7 +54,7 @@ export const Session = (props: SessionProps) => {
                 />
             </View>
             {modalVisible ? (
-                <ConfirmModal
+                <SymfoniModalTitleDesc
                     onRequestClose={() => {
                         setModalVisible(false);
                     }}

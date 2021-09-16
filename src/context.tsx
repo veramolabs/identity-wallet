@@ -1,19 +1,5 @@
 /* eslint-disable no-undef */
 import { BROK_HELPERS_VERIFIER } from "@env";
-// import axios from "axios";
-// import Wallet from "caip-wallet";
-// import Client from "@walletconnect/client";
-// import { SessionTypes } from "@walletconnect/types";
-
-// import KeyValueStorage from "keyvaluestorage";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-    formatJsonRpcError,
-    formatJsonRpcResult,
-    JsonRpcError,
-    JsonRpcResponse,
-} from "@json-rpc-tools/utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     IDataStore,
     IDIDManager,
@@ -33,26 +19,17 @@ import {
 } from "@veramo/data-store";
 import Client from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
-import { useVeramo } from "./utils/useVeramo";
-import { useWalletconnect } from "./utils/useWalletconnect";
-import { normalizePresentation } from "did-jwt-vc";
 import { ethers } from "ethers";
 import React, {
     createContext,
     SetStateAction,
-    useCallback,
     useEffect,
     useState,
 } from "react";
-import { registerForvalt } from "./components/presenter/ForvaltPresenter";
-import {
-    DEFAULT_APP_METADATA,
-    DEFAULT_EIP155_METHODS,
-    DEFAULT_RPC_PROVIDER,
-    DEFAULT_RELAY_PROVIDER,
-    DEFAULT_TEST_CHAINS,
-} from "./constants/default";
-import { goBack, navigate } from "./navigation";
+import { DEFAULT_RPC_PROVIDER, DEFAULT_TEST_CHAINS } from "./constants/default";
+import { navigate } from "./navigation";
+import { useVeramo } from "./utils/useVeramo";
+import { useWalletconnect } from "./utils/useWalletconnect";
 
 export type Agent = TAgent<
     IDIDManager &
