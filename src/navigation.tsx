@@ -3,18 +3,16 @@ import { NavigationContainer, useTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
 import { useContext } from "react";
-import { Settings } from "react-native";
 import { Icon } from "react-native-elements/dist/icons/Icon";
-import { DEFAULT_TEST_CHAINS } from "./constants/default";
-import { MainnetTheme, TestnetTheme } from "./constants/theme";
+import { ColorContext } from "./colorContext";
 import { Context } from "./context";
 import { BankId } from "./screens/BankId";
 import { Home } from "./screens/Home";
 import { Identity } from "./screens/Identity";
-import Modal from "./screens/Modal";
 import { ProfileNavigation } from "./screens/Profile/profileNavigation";
+import RequestAndProposalHandler from "./screens/RequestAndProposalHandler";
 import { ScannerScreen } from "./screens/ScannerScreen";
-import { Colors } from "./styles";
+import { MainnetTheme, TestnetTheme } from "./styles";
 
 export const navigationRef = React.createRef<any>();
 
@@ -71,6 +69,8 @@ function Tabs() {
                         iconName = focused
                             ? PROFILE_ROUTE.iconNameFocused
                             : PROFILE_ROUTE.iconName;
+                    } else {
+                        iconName = "person";
                     }
                     return (
                         <Icon
@@ -94,16 +94,6 @@ function Tabs() {
                 }}
             />
             <Tab.Screen
-                name="Identity"
-                component={Identity}
-                options={{ title: "Identitet" }}
-            />
-            <Tab.Screen
-                name="Bankid"
-                component={BankId}
-                options={{ title: "BankID" }}
-            />
-            <Tab.Screen
                 name={PROFILE_ROUTE.routeId}
                 component={ProfileNavigation}
                 options={{ title: PROFILE_ROUTE.title, headerShown: false }}
@@ -119,10 +109,11 @@ function Tabs() {
 
 export const Navigation = () => {
     const { selectedChain, isTest } = useContext(Context);
+    const { colors, toggleDarkMode } = useContext(ColorContext);
+    console.log(useContext(ColorContext));
+    // const { colors } = useTheme();
     return (
-        <NavigationContainer
-            theme={isTest ? TestnetTheme : MainnetTheme}
-            ref={navigationRef}>
+        <NavigationContainer ref={navigationRef}>
             <Stack.Navigator>
                 <Stack.Screen
                     name="Main"
@@ -130,8 +121,23 @@ export const Navigation = () => {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
+                    name="Identity"
+                    component={Identity}
+                    options={{
+                        title: "Identitet",
+                        headerTitleStyle: {
+                            color: colors.onPrimary,
+                        },
+                    }}
+                />
+                <Stack.Screen
+                    name="Bankid"
+                    component={BankId}
+                    options={{ title: "BankID" }}
+                />
+                <Stack.Screen
                     name="Modal"
-                    component={Modal}
+                    component={RequestAndProposalHandler}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
