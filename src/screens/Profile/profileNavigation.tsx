@@ -1,8 +1,9 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useContext } from "react";
-import { TestnetTheme, MainnetTheme } from "../../constants/theme";
+import { ColorContext } from "../../colorContext";
 import { Context } from "../../context";
+import { MainnetTheme, TestnetTheme } from "../../styles";
 import { Developer } from "./Developer";
 import { Help } from "./Help";
 import { Legal } from "./Legal";
@@ -118,15 +119,13 @@ export function goBackProfile() {
 
 export const ProfileNavigation = () => {
     const { isTest } = useContext(Context);
+    const { colors } = useContext(ColorContext);
     return (
-        <NavigationContainer
-            ref={profileNavigationRef}
-            independent={true}
-            theme={isTest ? TestnetTheme : MainnetTheme}>
+        <NavigationContainer ref={profileNavigationRef} independent={true}>
             <ProfileStack.Navigator
                 screenOptions={{
                     headerBackTitleVisible: false,
-                    headerTintColor: "black",
+                    headerTintColor: colors.onPrimary,
                 }}>
                 <ProfileStack.Screen
                     name="Profile"
@@ -137,7 +136,6 @@ export const ProfileNavigation = () => {
                     if (!isDivider(item)) {
                         // is not divider
                         let route = item as ProfileMenuRoute;
-                        console.log("component", route.component);
                         return (
                             <ProfileStack.Screen
                                 key={route.routeId}
