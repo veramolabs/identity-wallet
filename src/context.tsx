@@ -1,19 +1,10 @@
 /* eslint-disable no-undef */
-import { BROK_HELPERS_VERIFIER, IS_TEST } from "@env";
-// import axios from "axios";
-// import Wallet from "caip-wallet";
-// import Client from "@walletconnect/client";
-// import { SessionTypes } from "@walletconnect/types";
-
-// import KeyValueStorage from "keyvaluestorage";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-    formatJsonRpcError,
-    formatJsonRpcResult,
-    JsonRpcError,
-    JsonRpcResponse,
-} from "@json-rpc-tools/utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+    APP_ENV,
+    BANKID_CLIENT_ID,
+    BROK_HELPERS_VERIFIER,
+    IS_TEST,
+} from "@env";
 import {
     IDataStore,
     IDIDManager,
@@ -33,22 +24,17 @@ import {
 } from "@veramo/data-store";
 import Client from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
-import { useVeramo } from "./utils/useVeramo";
-import { useWalletconnect } from "./utils/useWalletconnect";
-import { normalizePresentation } from "did-jwt-vc";
 import { ethers } from "ethers";
-import React, { createContext, useCallback, useEffect, useState } from "react";
-import { registerForvalt } from "./components/presenter/ForvaltPresenter";
+import React, { createContext, useEffect, useState } from "react";
 import {
-    DEFAULT_APP_METADATA,
-    DEFAULT_EIP155_METHODS,
-    DEFAULT_RPC_PROVIDER_TEST,
-    DEFAULT_RELAY_PROVIDER,
-    DEFAULT_TEST_CHAINS,
     DEFAULT_MAIN_CHAINS,
     DEFAULT_RPC_PROVIDER_MAIN,
+    DEFAULT_RPC_PROVIDER_TEST,
+    DEFAULT_TEST_CHAINS,
 } from "./constants/default";
-import { goBack, navigate } from "./navigation";
+import { navigate } from "./navigation";
+import { useVeramo } from "./utils/useVeramo";
+import { useWalletconnect } from "./utils/useWalletconnect";
 
 export type Agent = TAgent<
     IDIDManager &
@@ -97,6 +83,8 @@ export interface IContext {
 }
 
 export const Context = createContext<IContext>(undefined!);
+
+console.log("APP_ENV:", APP_ENV);
 
 export const ContextProvider = (props: any) => {
     const [isTest] = useState(IS_TEST ? true : false);

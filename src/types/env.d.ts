@@ -9,4 +9,5 @@ declare module "@env" {
     export const USE_LOCAL_ENVIROMENT: boolean;
     export const USE_TEST_DATA: boolean;
     export const IS_TEST: boolean;
+    export const APP_ENV: "development" | "production" | "staging" | "test";
 }
