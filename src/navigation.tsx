@@ -12,6 +12,7 @@ import { Identity } from "./screens/Identity";
 import { Settings } from "./screens/Settings";
 import Modal from "./screens/Modal";
 import { ScannerScreen } from "./screens/ScannerScreen";
+import RNBootSplash from "react-native-bootsplash";
 
 export const navigationRef = React.createRef<any>();
 
@@ -63,6 +64,7 @@ export const Navigation = () => {
     const { selectedChain } = useContext(Context);
     return (
         <NavigationContainer
+            onReady={() => RNBootSplash.hide({ fade: true })}
             theme={
                 DEFAULT_TEST_CHAINS.includes(selectedChain)
                     ? TestnetTheme

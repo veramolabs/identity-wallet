@@ -18,10 +18,16 @@
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
         android:launchMode="singleTask"
         android:windowSoftInputMode="adjustResize">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
       </activity>
     </application>
+    <!-- add the following lines (use the theme you created at step 2) -->
+    <activity
+      android:name="com.zoontek.rnbootsplash.RNBootSplashActivity"
+      android:theme="@style/BootTheme"
+      android:launchMode="singleTask">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
 </manifest>
