@@ -1,11 +1,8 @@
 import { useTheme } from "@react-navigation/native";
-import { VerifiablePresentation } from "@veramo/core/build/types/IMessage";
 import { UniqueVerifiableCredential } from "@veramo/data-store";
 import { format, parseISO } from "date-fns";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { getIconType, Icon } from "react-native-elements";
-import { Card } from "react-native-elements/dist/card/Card";
 
 interface Props {
     vc: UniqueVerifiableCredential;
@@ -67,24 +64,26 @@ export const VCCard: React.FC<Props> = ({ ...props }) => {
                     <View style={styles.vcTypesIcons}>
                         {vc.verifiableCredential.type.map((vcType, i) => {
                             return (
-                                <Icon
-                                    key={i}
-                                    name={getIcon(vcType)}
-                                    type="material"
-                                    size={30}
-                                />
+                                <></>
+                                // <Icon
+                                //     key={i}
+                                //     name={getIcon(vcType)}
+                                //     type="material"
+                                //     size={30}
+                                // />
                             );
                         })}
                     </View>
                     <View>
-                        <Icon
+                        <></>
+                        {/* <Icon
                             name={!expanded ? "expand-more" : "expand-less"}
                             size={50}
                             onPress={() => {
                                 setExpanded(!expanded);
                                 console.log(expanded);
                             }}
-                        />
+                        /> */}
                     </View>
                 </View>
             </View>

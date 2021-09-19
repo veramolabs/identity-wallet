@@ -3,7 +3,6 @@ import { NavigationContainer, useTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
 import { useContext } from "react";
-import { Icon } from "react-native-elements/dist/icons/Icon";
 import { ColorContext } from "./colorContext";
 import { Context } from "./context";
 import { BankId } from "./screens/BankId";
@@ -12,7 +11,6 @@ import { Identity } from "./screens/Identity";
 import { ProfileNavigation } from "./screens/Profile/profileNavigation";
 import RequestAndProposalHandler from "./screens/RequestAndProposalHandler";
 import { ScannerScreen } from "./screens/ScannerScreen";
-import { MainnetTheme, TestnetTheme } from "./styles";
 
 export const navigationRef = React.createRef<any>();
 
@@ -73,12 +71,13 @@ function Tabs() {
                         iconName = "person";
                     }
                     return (
-                        <Icon
-                            name={iconName}
-                            color={color}
-                            type="material"
-                            size={30}
-                        />
+                        // <Icon
+                        //     name={iconName}
+                        //     color={color}
+                        //     type="material"
+                        //     size={30}
+                        // />
+                        <></>
                     );
                 },
                 tabBarActiveTintColor: colors.primary,

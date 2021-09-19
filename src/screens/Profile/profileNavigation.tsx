@@ -3,7 +3,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import React, { useContext } from "react";
 import { ColorContext } from "../../colorContext";
 import { Context } from "../../context";
-import { MainnetTheme, TestnetTheme } from "../../styles";
 import { Developer } from "./Developer";
 import { Help } from "./Help";
 import { Legal } from "./Legal";

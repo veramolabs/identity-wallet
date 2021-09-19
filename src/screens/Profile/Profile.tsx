@@ -1,9 +1,9 @@
 import { useTheme } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Icon } from "react-native-elements";
-import { Divider } from "react-native-elements/dist/divider/Divider";
+import { SvgXml } from "react-native-svg";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { Divider } from "../../components/ui";
 import { Colors, Sizing, Typography } from "../../styles";
 import { layout } from "../../styles/sizing";
 import {
@@ -13,6 +13,7 @@ import {
     profileNavigate,
     PROFILE_ROUTES,
 } from "./profileNavigation";
+import person from "../../assets/icons/person.svg";
 
 export const Profile = () => {
     const { colors } = useTheme();
@@ -33,7 +34,6 @@ export const Profile = () => {
     return (
         <ScrollView style={styles.container}>
             {PROFILE_ROUTES.map((item: Item, i: number) => {
-                console.log("item", item);
                 if (isDivider(item)) {
                     return <Divider key={i} color="gray" width={1} />;
                 } else {
@@ -49,11 +49,7 @@ export const Profile = () => {
                                     flex: 1,
                                     marginLeft: layout.x10,
                                 }}>
-                                <Icon
-                                    name={routeItem.iconName}
-                                    size={Sizing.icons.x30}
-                                    color={colors.notification}
-                                />
+                                <SvgXml xml={person} />
                             </View>
                             <View style={styles.profileRowTextColumn}>
                                 <Text style={styles.title}>
@@ -65,7 +61,7 @@ export const Profile = () => {
                                     </Text>
                                 )}
                             </View>
-                            <Icon name="keyboard-arrow-right" color="gray" />
+                            {/* <Icon name="keyboard-arrow-right" color="gray" /> */}
                         </TouchableOpacity>
                     );
                 }

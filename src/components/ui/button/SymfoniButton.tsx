@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
-import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { ColorContext, ColorSystem } from "../../../colorContext";
 import { Buttons, Colors } from "../../../styles";
@@ -38,11 +37,12 @@ export const SymfoniButton: React.FC<Props> = ({ ...props }) => {
             style={[props.style, buttonStyle]}>
             <View style={styles.content}>
                 {props.iconName && (
-                    <Icon
-                        style={styles.iconStyle}
-                        name={props.iconName}
-                        color={Colors.neutral.white}
-                    />
+                    // <Icon
+                    //     style={styles.iconStyle}
+                    //     name={props.iconName}
+                    //     color={Colors.neutral.white}
+                    // />
+                    <></>
                 )}
                 {props.text && (
                     <Text style={styles.buttonText}>{props.text}</Text>
