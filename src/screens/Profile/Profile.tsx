@@ -1,8 +1,9 @@
 import { useTheme } from "@react-navigation/native";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { SvgXml } from "react-native-svg";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { Icon } from "../../assets/icons/Icon";
+import { ColorContext, ColorSystem } from "../../colorContext";
 import { Divider } from "../../components/ui";
 import { Colors, Sizing, Typography } from "../../styles";
 import { layout } from "../../styles/sizing";
@@ -13,10 +14,9 @@ import {
     profileNavigate,
     PROFILE_ROUTES,
 } from "./profileNavigation";
-import person from "../../assets/icons/person.svg";
 
 export const Profile = () => {
-    const { colors } = useTheme();
+    const { colors } = useContext(ColorContext);
     const styles = makeStyles(colors);
 
     useEffect(() => {
@@ -35,7 +35,13 @@ export const Profile = () => {
         <ScrollView style={styles.container}>
             {PROFILE_ROUTES.map((item: Item, i: number) => {
                 if (isDivider(item)) {
-                    return <Divider key={i} color="gray" width={1} />;
+                    return (
+                        <Divider
+                            key={i}
+                            color={Colors.neutral.s300}
+                            width={1}
+                        />
+                    );
                 } else {
                     let routeItem = item as ProfileMenuRoute;
                     return (
@@ -49,7 +55,11 @@ export const Profile = () => {
                                     flex: 1,
                                     marginLeft: layout.x10,
                                 }}>
-                                <SvgXml xml={person} />
+                                <Icon
+                                    type={routeItem.icon}
+                                    color={colors.primary.light}
+                                    size={Sizing.icons.x30}
+                                />
                             </View>
                             <View style={styles.profileRowTextColumn}>
                                 <Text style={styles.title}>
@@ -61,7 +71,11 @@ export const Profile = () => {
                                     </Text>
                                 )}
                             </View>
-                            {/* <Icon name="keyboard-arrow-right" color="gray" /> */}
+                            <Icon
+                                type="next-arrow"
+                                color={Colors.neutral.s500}
+                                size={Sizing.icons.x30}
+                            />
                         </TouchableOpacity>
                     );
                 }
@@ -70,18 +84,19 @@ export const Profile = () => {
     );
 };
 
-const makeStyles = (colors: any) => {
+const makeStyles = (colors: ColorSystem) => {
     return StyleSheet.create({
         container: {
             flex: 1,
+            backgroundColor: colors.background,
             flexDirection: "column",
-            paddingHorizontal: 10,
-            paddingVertical: 30,
+            paddingHorizontal: layout.x10,
+            paddingVertical: layout.x30,
         },
         profileRow: {
             flex: 1,
             flexDirection: "row",
-            marginVertical: 20,
+            marginVertical: layout.x20,
             alignItems: "center",
         },
         profileRowTextColumn: {
@@ -91,11 +106,11 @@ const makeStyles = (colors: any) => {
         },
         title: {
             ...Typography.subheader.x20,
-            color: colors.text,
+            color: colors.onBackground,
         },
         subtitle: {
             ...Typography.body.x20,
-            color: Colors.neutral.white,
+            color: Colors.neutral.s400,
         },
     });
 };

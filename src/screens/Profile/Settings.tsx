@@ -3,15 +3,13 @@ import { UniqueVerifiableCredential } from "@veramo/data-store";
 import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import React, { useContext, useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
-import { Text } from "react-native-elements";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ColorContext, ColorSystem } from "../../colorContext";
 import { Sessions } from "../../components/wallet";
 import { VCCard } from "../../components/wallet/VCCard";
 import { Context } from "../../context";
 
 export const Settings = () => {
-    // const { colors } = useTheme();
     const { colors } = useContext(ColorContext);
     const styles = makeStyles(colors);
     const { client, closeSession, findVC } = useContext(Context);
@@ -61,7 +59,7 @@ export const Settings = () => {
             <SafeAreaView style={styles.container}>
                 <ScrollView>
                     <View style={styles.sessions}>
-                        <Text h2>Sesjoner</Text>
+                        <Text>Sesjoner</Text>
                         {sessions.length > 0 ? (
                             <Sessions
                                 sessions={sessions}
@@ -75,7 +73,7 @@ export const Settings = () => {
                         )}
                     </View>
                     <View style={styles.verifiableCredentials}>
-                        <Text h2>Verifiable credentials</Text>
+                        <Text>Verifiable credentials</Text>
                         {userVcs.length > 0 ? (
                             <>
                                 {userVcs.map((v, i) => {

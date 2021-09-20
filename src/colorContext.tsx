@@ -19,12 +19,15 @@ export interface ColorSystem {
     onPrimary: string;
     onSecondary: string;
     onBackground: string;
+    onSurface: string;
 }
 
 export interface IColorContext {
+    isDarkMode: boolean;
     colors: ColorSystem;
     toggleDarkMode: () => void;
     updatePalette: (colorSystem: ColorSystem) => void;
+    setDefaultColors: () => void;
 }
 
 const DEFAULT_DARKMODE_COLORS: ColorSystem = {
@@ -38,11 +41,12 @@ const DEFAULT_DARKMODE_COLORS: ColorSystem = {
         main: "#f47e17",
         dark: "#bb5000",
     },
-    background: "#000",
-    onBackground: "#FFF",
-    surface: "#000",
-    onPrimary: "#FFF",
-    onSecondary: "#000",
+    background: "#000000",
+    onBackground: "#FFFFFF",
+    surface: "#121212",
+    onPrimary: "#FFFFFF",
+    onSecondary: "#000000",
+    onSurface: "#FFFFFF",
 };
 const DEFAULT_LIGHT_COLORS: ColorSystem = {
     primary: {
@@ -55,11 +59,12 @@ const DEFAULT_LIGHT_COLORS: ColorSystem = {
         main: "#f47e17",
         dark: "#bb5000",
     },
-    background: "#FFF",
-    onBackground: "#000",
-    surface: "#FFF",
-    onPrimary: "#FFF",
-    onSecondary: "#000",
+    background: "#FFFFFF",
+    onBackground: "#000000",
+    surface: "#FFFFFF",
+    onPrimary: "#FFFFFF",
+    onSecondary: "#000000",
+    onSurface: "#FFFFFF",
 };
 
 export const ColorContext = createContext<IColorContext>(undefined!);
@@ -93,10 +98,17 @@ export const ColorContextProvider = (props: any) => {
         setIsDarkMode(!isDarkMode);
     };
 
+    const setDefaultColors = () => {
+        setDarkModeColors(DEFAULT_DARKMODE_COLORS);
+        setLightColors(DEFAULT_LIGHT_COLORS);
+    };
+
     const context: IColorContext = {
+        isDarkMode,
         colors,
         toggleDarkMode,
         updatePalette,
+        setDefaultColors,
     };
 
     return (

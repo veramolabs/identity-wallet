@@ -1,5 +1,5 @@
 import { useTheme } from "@react-navigation/native";
-import React from "react";
+import React, { useContext } from "react";
 import {
     Modal,
     Pressable,
@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { ColorContext, ColorSystem } from "../../colorContext";
 import { Buttons, Colors, Sizing, Typography } from "../../styles";
 import { borderRadius } from "../../styles/outlines";
 
@@ -20,7 +21,7 @@ interface ModalProps {
 }
 
 export const SymfoniModalTitleDesc = (props: ModalProps) => {
-    const { colors } = useTheme();
+    const { colors } = useContext(ColorContext);
     const styles = makeStyles(colors);
 
     return (
@@ -59,7 +60,7 @@ export const SymfoniModalTitleDesc = (props: ModalProps) => {
     );
 };
 
-const makeStyles = (colors: any) =>
+const makeStyles = (colors: ColorSystem) =>
     StyleSheet.create({
         centeredView: {
             flex: 1,
@@ -87,6 +88,7 @@ const makeStyles = (colors: any) =>
         },
         buttonText: {
             ...Buttons.barText.primary,
+            color: colors.onBackground,
         },
         confirmButton: {
             ...Buttons.bar.primary,
@@ -104,8 +106,10 @@ const makeStyles = (colors: any) =>
         title: {
             ...Typography.header.x50,
             marginBottom: Sizing.x10,
+            color: colors.onBackground,
         },
         body: {
             ...Typography.body.x40,
+            color: colors.onBackground,
         },
     });

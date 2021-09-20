@@ -141,7 +141,6 @@ const makeStyles = (colors: ColorSystem) => {
             flex: 1,
             flexDirection: "column",
             justifyContent: "flex-start",
-            margin: Sizing.layout.x5,
             padding: Sizing.layout.x30,
         },
         row: {

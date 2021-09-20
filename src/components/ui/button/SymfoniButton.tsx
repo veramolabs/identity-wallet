@@ -1,12 +1,14 @@
 import React, { useContext } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Icon, IconType } from "../../../assets/icons/Icon";
 import { ColorContext, ColorSystem } from "../../../colorContext";
 import { Buttons, Colors } from "../../../styles";
+import { layout } from "../../../styles/sizing";
 
 interface Props {
     style?: StyleProp<ViewStyle> | undefined;
-    iconName?: string;
+    icon?: IconType;
     text?: string;
     type: "primary" | "secondary" | "success" | "danger";
     onPress?: () => void;
@@ -36,13 +38,13 @@ export const SymfoniButton: React.FC<Props> = ({ ...props }) => {
             onPress={props.onPress}
             style={[props.style, buttonStyle]}>
             <View style={styles.content}>
-                {props.iconName && (
-                    // <Icon
-                    //     style={styles.iconStyle}
-                    //     name={props.iconName}
-                    //     color={Colors.neutral.white}
-                    // />
-                    <></>
+                {props.icon && (
+                    <Icon
+                        style={styles.iconStyle}
+                        size={layout.x30}
+                        type={props.icon}
+                        color={Colors.neutral.white}
+                    />
                 )}
                 {props.text && (
                     <Text style={styles.buttonText}>{props.text}</Text>
@@ -72,12 +74,14 @@ const makeStyles = (colors: ColorSystem) => {
         },
         content: {
             flexDirection: "row",
+            alignItems: "center",
         },
         buttonText: {
             ...Buttons.barText.primary,
+            color: colors.onPrimary,
         },
         iconStyle: {
-            marginEnd: 5,
+            marginRight: 5,
         },
     });
 };

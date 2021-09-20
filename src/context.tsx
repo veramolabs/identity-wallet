@@ -149,7 +149,7 @@ export const ContextProvider = (props: any) => {
     useEffect(() => {
         if (hasTrustedIndentity === false) {
             // TODO - @Asbjørn - Make toast about going to bankID
-            navigate("Bankid");
+            // navigate("Bankid");
         }
     }, [hasTrustedIndentity]);
 

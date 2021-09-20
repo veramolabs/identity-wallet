@@ -1,8 +1,9 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useContext } from "react";
+import { IconType } from "../../assets/icons/Icon";
 import { ColorContext } from "../../colorContext";
-import { Context } from "../../context";
+import { SymfoniColorPicker } from "../../components/ColorPicker";
 import { Developer } from "./Developer";
 import { Help } from "./Help";
 import { Legal } from "./Legal";
@@ -20,7 +21,7 @@ export interface ProfileMenuRoute {
     routeId: string;
     title: string;
     subtitle?: string;
-    iconName: string;
+    icon: IconType;
     kind: string;
 }
 
@@ -33,7 +34,7 @@ const security: ProfileMenuRoute = {
     routeId: "Security",
     title: "Sikkerhet",
     subtitle: "Trusted apps",
-    iconName: "lock",
+    icon: "lock",
     kind: "item",
 };
 const settings: ProfileMenuRoute = {
@@ -41,14 +42,14 @@ const settings: ProfileMenuRoute = {
     routeId: "Settings",
     title: "Innstillinger",
     subtitle: "Notifikasjoner, etc.....",
-    iconName: "settings",
+    icon: "settings",
     kind: "item",
 };
 const developer: ProfileMenuRoute = {
     component: Developer,
     routeId: "Developer",
     title: "Utvikler",
-    iconName: "developer-mode",
+    icon: "developer",
     kind: "item",
 };
 
@@ -56,7 +57,7 @@ const help: ProfileMenuRoute = {
     component: Help,
     routeId: "Help",
     title: "Hjelp og support",
-    iconName: "help-outline",
+    icon: "help",
     kind: "item",
 };
 
@@ -64,7 +65,7 @@ const report: ProfileMenuRoute = {
     component: Report,
     routeId: "Report",
     title: "Rapporter feil",
-    iconName: "bug-report",
+    icon: "bug",
     kind: "item",
 };
 
@@ -72,7 +73,7 @@ const legal: ProfileMenuRoute = {
     component: Legal,
     routeId: "Legal",
     title: "Legal",
-    iconName: "policy",
+    icon: "policy",
     kind: "item",
 };
 
@@ -80,7 +81,15 @@ const rating: ProfileMenuRoute = {
     component: Rating,
     routeId: "Rate",
     title: "Ranger appen",
-    iconName: "star-rate",
+    icon: "star",
+    kind: "item",
+};
+
+const colorPicker: ProfileMenuRoute = {
+    component: SymfoniColorPicker,
+    routeId: "ColorPicker",
+    title: "Fargevalg",
+    icon: "developer",
     kind: "item",
 };
 
@@ -97,6 +106,7 @@ export const PROFILE_ROUTES: Item[] = [
     { kind: "divider" } as Divider,
     rating,
     developer,
+    colorPicker,
 ];
 
 export const isDivider = (item: Item): boolean => {
@@ -117,14 +127,16 @@ export function goBackProfile() {
 }
 
 export const ProfileNavigation = () => {
-    const { isTest } = useContext(Context);
     const { colors } = useContext(ColorContext);
+    console.log(colors.surface);
+
     return (
         <NavigationContainer ref={profileNavigationRef} independent={true}>
             <ProfileStack.Navigator
                 screenOptions={{
                     headerBackTitleVisible: false,
-                    headerTintColor: colors.onPrimary,
+                    headerTintColor: colors.onBackground,
+                    headerStyle: { backgroundColor: colors.surface },
                 }}>
                 <ProfileStack.Screen
                     name="Profile"
@@ -140,6 +152,12 @@ export const ProfileNavigation = () => {
                                 key={route.routeId}
                                 name={route.routeId}
                                 component={route.component}
+                                options={{
+                                    headerShown: true,
+                                    headerStyle: {
+                                        backgroundColor: colors.surface,
+                                    },
+                                }}
                             />
                         );
                     }

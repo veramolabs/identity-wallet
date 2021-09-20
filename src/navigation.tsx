@@ -3,6 +3,7 @@ import { NavigationContainer, useTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
 import { useContext } from "react";
+import { Icon, IconType } from "./assets/icons/Icon";
 import { ColorContext } from "./colorContext";
 import { Context } from "./context";
 import { BankId } from "./screens/BankId";
@@ -34,55 +35,40 @@ export function goBack() {
 interface Route {
     routeId: string;
     title: string;
-    iconName: string;
-    iconNameFocused: string;
+    icon: IconType;
 }
 
 const HOME_ROUTE: Route = {
     routeId: "Home",
     title: "Hjem",
-    iconName: "home",
-    iconNameFocused: "home",
+    icon: "home",
 };
 
 const PROFILE_ROUTE: Route = {
     routeId: "Profile",
     title: "Profil",
-    iconName: "account-circle",
-    iconNameFocused: "account-circle",
+    icon: "account",
 };
 
 function Tabs() {
-    const { colors } = useTheme();
+    const { colors } = useContext(ColorContext);
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
-                    let iconName = "";
+                    let iconName: IconType;
                     if (route.name === HOME_ROUTE.routeId) {
-                        iconName = focused
-                            ? HOME_ROUTE.iconNameFocused
-                            : HOME_ROUTE.iconName;
+                        iconName = HOME_ROUTE.icon;
                     } else if (route.name === PROFILE_ROUTE.routeId) {
-                        iconName = focused
-                            ? PROFILE_ROUTE.iconNameFocused
-                            : PROFILE_ROUTE.iconName;
+                        iconName = PROFILE_ROUTE.icon;
                     } else {
                         iconName = "person";
                     }
-                    return (
-                        // <Icon
-                        //     name={iconName}
-                        //     color={color}
-                        //     type="material"
-                        //     size={30}
-                        // />
-                        <></>
-                    );
+                    return <Icon type={iconName} color={color} size={30} />;
                 },
-                tabBarActiveTintColor: colors.primary,
+                tabBarActiveTintColor: colors.primary.main,
                 tabBarInactiveTintColor: "gray",
-                tabBarStyle: { backgroundColor: colors.card },
+                tabBarStyle: { backgroundColor: colors.surface },
             })}>
             <Tab.Screen
                 name={HOME_ROUTE.routeId}
@@ -109,7 +95,6 @@ function Tabs() {
 export const Navigation = () => {
     const { selectedChain, isTest } = useContext(Context);
     const { colors, toggleDarkMode } = useContext(ColorContext);
-    console.log(useContext(ColorContext));
     // const { colors } = useTheme();
     return (
         <NavigationContainer ref={navigationRef}>

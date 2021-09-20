@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { color } from "react-native-reanimated";
 import { ColorContext, ColorSystem } from "../../colorContext";
 import { Buttons, Colors, Sizing, Typography } from "../../styles";
 import { borderRadius } from "../../styles/outlines";
@@ -90,6 +91,7 @@ const makeStyles = (colors: ColorSystem) =>
         },
         buttonText: {
             ...Buttons.barText.primary,
+            color: colors.onBackground,
         },
         confirmButton: {
             ...Buttons.bar.primary,
@@ -107,8 +109,10 @@ const makeStyles = (colors: ColorSystem) =>
         title: {
             ...Typography.header.x50,
             marginBottom: Sizing.x10,
+            color: colors.onBackground,
         },
         body: {
             ...Typography.body.x40,
+            color: colors.onBackground,
         },
     });
