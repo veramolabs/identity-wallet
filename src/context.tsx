@@ -1,5 +1,10 @@
 /* eslint-disable no-undef */
-import { BROK_HELPERS_VERIFIER } from "@env";
+import {
+    APP_ENV,
+    BANKID_CLIENT_ID,
+    BROK_HELPERS_VERIFIER,
+    IS_TEST,
+} from "@env";
 import {
     IDataStore,
     IDIDManager,
@@ -26,7 +31,12 @@ import React, {
     useEffect,
     useState,
 } from "react";
-import { DEFAULT_RPC_PROVIDER, DEFAULT_TEST_CHAINS } from "./constants/default";
+import {
+    DEFAULT_MAIN_CHAINS,
+    DEFAULT_RPC_PROVIDER_MAIN,
+    DEFAULT_RPC_PROVIDER_TEST,
+    DEFAULT_TEST_CHAINS,
+} from "./constants/default";
 import { navigate } from "./navigation";
 import { useVeramo } from "./utils/useVeramo";
 import { useWalletconnect } from "./utils/useWalletconnect";
@@ -43,7 +53,6 @@ export type Dispatch<T = any> = React.Dispatch<React.SetStateAction<T>>;
 
 export interface IContext {
     isTest: boolean;
-    setIsTest: React.Dispatch<SetStateAction<boolean>>;
     loading: boolean;
     chains: string[];
     accounts: string[];
@@ -80,15 +89,23 @@ export interface IContext {
 
 export const Context = createContext<IContext>(undefined!);
 
+console.log("APP_ENV:", APP_ENV);
+
 export const ContextProvider = (props: any) => {
-    const [isTest, setIsTest] = useState<boolean>(false);
+    const [isTest] = useState(IS_TEST ? true : false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [chains] = useState<string[]>(DEFAULT_TEST_CHAINS);
-    const [selectedChain, setSelectedChain] = useState(DEFAULT_TEST_CHAINS[0]);
+    const [chains] = useState<string[]>(
+        isTest ? DEFAULT_TEST_CHAINS : DEFAULT_MAIN_CHAINS
+    );
+    const [selectedChain, setSelectedChain] = useState(
+        isTest ? DEFAULT_TEST_CHAINS[0] : DEFAULT_MAIN_CHAINS[0]
+    );
     const [provider] = useState(
         () =>
             new ethers.providers.JsonRpcProvider({
-                url: DEFAULT_RPC_PROVIDER,
+                url: isTest
+                    ? DEFAULT_RPC_PROVIDER_TEST
+                    : DEFAULT_RPC_PROVIDER_MAIN,
             })
     );
     const veramo = useVeramo(selectedChain);
@@ -97,10 +114,10 @@ export const ContextProvider = (props: any) => {
 
     // Loading
     useEffect(() => {
-        if (walletconnect.client) {
+        if (veramo.accounts.length > 0) {
             setLoading(false);
         }
-    }, [walletconnect.client]);
+    }, [veramo.accounts]);
 
     // Check if user got indetifier
     useEffect(() => {
@@ -156,7 +173,6 @@ export const ContextProvider = (props: any) => {
     // Make the context object:
     const context: IContext = {
         isTest,
-        setIsTest,
         loading,
         chains,
         provider,

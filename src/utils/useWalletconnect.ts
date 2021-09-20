@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+import { BROK_HELPERS_VERIFIER } from "@env";
 import {
     formatJsonRpcError,
     formatJsonRpcResult,
@@ -10,6 +11,7 @@ import { VerifiableCredential, VerifiablePresentation } from "@veramo/core";
 import Client, { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { useCallback, useEffect, useState } from "react";
+import { ForvaltRepositoryImpl } from "../domain/ForvaltRepository";
 import {
     DEFAULT_APP_METADATA,
     DEFAULT_EIP155_METHODS,
@@ -17,6 +19,7 @@ import {
 } from "./../constants/default";
 import { goBack, navigate } from "./../navigation";
 import { useVeramoInterface } from "./useVeramo";
+import { normalizePresentation } from "did-jwt-vc";
 
 export const useWalletconnect = (
     supportedChains: string[],
@@ -157,10 +160,6 @@ export const useWalletconnect = (
                     response = formatJsonRpcResult(event.request.id, result);
                 }
                 if (event.request.method === "did_createVerifiableCredential") {
-                    console.log(
-                        "requestEvent.request.params[0",
-                        event.request.params[0]
-                    );
                     if (!event.request.params[0].payload) {
                         throw Error("Requires payload parameter");
                     }
@@ -179,6 +178,53 @@ export const useWalletconnect = (
                         event.request.id,
                         vp.proof.jwt
                     );
+                }
+                if (
+                    event.request.method === "did_requestVerifiableCredential"
+                ) {
+                    const params = event.request.params[0];
+                    console.log(
+                        "did_createVerifiableCredential params =>",
+                        params
+                    );
+                    if (params.type === "CapTableBoardDirector") {
+                        if (!params.orgnr) {
+                            throw Error("Requires orgnr parameter");
+                        }
+                        if (!params.verifier) {
+                            throw Error("Requires verifier parameter");
+                        }
+                        const vc = await veramo.createVC({
+                            orgnr: params.orgnr,
+                        });
+                        const vp = await veramo.createVP(
+                            BROK_HELPERS_VERIFIER,
+                            [vc]
+                        );
+                        const forvaltRepository = new ForvaltRepositoryImpl();
+                        const res =
+                            await forvaltRepository.requestBoardDirectorVerifiableCredential(
+                                vp
+                            );
+                        veramo.saveVP(res.data);
+
+                        const reqVP = normalizePresentation(res.data);
+                        if (!reqVP.verifiableCredential) {
+                            throw Error("No VC in response");
+                        }
+
+                        const approveVP = await veramo.createVP(
+                            params.verifier,
+                            reqVP.verifiableCredential?.map(
+                                (vc) => vc.proof.jwt as string
+                            )
+                        );
+
+                        response = formatJsonRpcResult(
+                            event.request.id,
+                            approveVP.proof.jwt
+                        );
+                    }
                 }
 
                 await client.respond({

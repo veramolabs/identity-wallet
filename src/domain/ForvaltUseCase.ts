@@ -17,8 +17,6 @@ export class ForvaltServiceImpl implements ForvaltService {
     }
 
     registerVpInForvalt(vp: VerifiablePresentation): Promise<AxiosResponse> {
-        return this.forvaltRepo
-            .registerWithBankId(vp)
+        return this.forvaltRepo.registerWithBankId(vp);
     }
-
 }

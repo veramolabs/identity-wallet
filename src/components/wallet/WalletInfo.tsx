@@ -21,14 +21,8 @@ import {
 } from "../../colorContext";
 
 export const WalletInfo = () => {
-    const {
-        isTest,
-        setIsTest,
-        accounts,
-        provider,
-        deleteVeramoData,
-        identity,
-    } = useContext(Context);
+    const { isTest, accounts, provider, deleteVeramoData, identity } =
+        useContext(Context);
     const [balance, setBalance] = useState<BigNumber>(ethers.constants.Zero);
     const [address, setAddress] = useState(() => accounts[0].split(":").pop());
     // const { colors } = useTheme();
@@ -111,12 +105,10 @@ export const WalletInfo = () => {
                     <Text style={styles.title}>Modus</Text>
                 </View>
                 <SymfoniButton
-                    text={isTest ? "Endre til mainnet" : "Endre til test"}
+                    text={"TOD: Endre til test"}
                     type="primary"
                     onPress={() => {
                         toggleDarkMode();
-                        console.log("Test", isTest);
-                        setIsTest(!isTest);
                     }}
                 />
             </View>

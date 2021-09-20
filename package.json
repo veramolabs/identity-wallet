@@ -5,7 +5,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start",
+    "start": "APP_ENV=development react-native start",
+    "start:prod": "APP_ENV=production react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "clear": "watchman watch-del-all && rm -rf $TMPDIR/react-* && rm -rf $TMPDIR/metro-* && rm -rf $TMPDIR/haste-map-* && rm -rf node_modules/.cache/babel-loader",
@@ -42,6 +43,7 @@
     "node-libs-react-native": "^1.2.1",
     "react": "17.0.1",
     "react-native": "0.64.1",
+    "react-native-bootsplash": "^3.2.5",
     "react-native-camera": "^4.0.1",
     "react-native-color-picker": "^0.6.0",
     "react-native-crypto": "^2.2.0",

@@ -1,8 +1,9 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer, useTheme } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
 import { useContext } from "react";
+import RNBootSplash from "react-native-bootsplash";
 import { Icon, IconType } from "./assets/icons/Icon";
 import { ColorContext } from "./colorContext";
 import { Context } from "./context";
@@ -97,7 +98,9 @@ export const Navigation = () => {
     const { colors, toggleDarkMode } = useContext(ColorContext);
     // const { colors } = useTheme();
     return (
-        <NavigationContainer ref={navigationRef}>
+        <NavigationContainer
+            onReady={() => RNBootSplash.hide({ fade: true })}
+            ref={navigationRef}>
             <Stack.Navigator>
                 <Stack.Screen
                     name="Main"

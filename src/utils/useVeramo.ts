@@ -74,7 +74,7 @@ export const useVeramo = (chainId: string) => {
             const _accounts = [CAIPAddress];
             setAccounts(_accounts);
             setIdentity(_identity);
-            console.log("Accounts => ", _accounts);
+            console.info("Accounts => ", _accounts);
         };
         initWallet();
     }, [agent, chainId]);
