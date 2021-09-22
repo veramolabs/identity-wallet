@@ -4,10 +4,10 @@ import {
     StyleProp,
     StyleSheet,
     Text,
+    TextInput,
     View,
     ViewStyle,
 } from "react-native";
-import { ColorPicker, fromHsv } from "react-native-color-picker";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { ColorContext, ColorSystem } from "../colorContext";
 import { Buttons } from "../styles";
@@ -102,15 +102,15 @@ export const SymfoniColorPicker: React.FC<Props> = ({ ...props }) => {
                         text="Save"
                         type="success"
                     />
-                    <Text>New color</Text>
-                    <Text>{newColor}</Text>
                 </View>
-                <ColorPicker
-                    defaultColor={editColor.colorValue}
-                    style={{ flex: 1 }}
-                    onColorChange={(color) => setNewColor(fromHsv(color))}
-                    onColorSelected={(color) => setNewColor(color)}
-                    hideSliders={true}
+                <TextInput
+                    style={{
+                        backgroundColor: newColor
+                            ? newColor
+                            : editColor.colorValue,
+                    }}
+                    value={newColor ? newColor : editColor.colorValue}
+                    onChangeText={setNewColor}
                 />
             </View>
         );
