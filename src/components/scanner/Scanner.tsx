@@ -1,24 +1,10 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useContext } from "react";
-import { Platform, StyleSheet, Text, TextInput } from "react-native";
+import { StyleSheet, Text, TextInput } from "react-native";
 import QRCodeScanner from "react-native-qrcode-scanner";
-import { Button } from "../ui/Button";
 import { Context } from "./../../context";
 
 export const Scanner = () => {
-    const { client } = useContext(Context);
-
-    const clearAsyncStorage = async () => {
-        const asyncStorageKeys = await AsyncStorage.getAllKeys();
-        if (asyncStorageKeys.length > 0) {
-            if (Platform.OS === "android") {
-                await AsyncStorage.clear();
-            }
-            if (Platform.OS === "ios") {
-                await AsyncStorage.multiRemove(asyncStorageKeys);
-            }
-        }
-    };
+    const { client, isTest, pair } = useContext(Context);
 
     async function onRead(data: any) {
         console.log("onRead", data);
@@ -32,7 +18,7 @@ export const Scanner = () => {
             if (typeof client === "undefined") {
                 return;
             }
-            await client.pair({ uri: data });
+            await pair(data, true);
         } catch (e) {
             console.error(e);
             return;
@@ -48,7 +34,7 @@ export const Scanner = () => {
             if (!client) {
                 throw Error("WalletConnect client not initialized");
             }
-            const pairResult = await client.pair({ uri: uri });
+            const pairResult = await pair(uri, true);
             console.debug("pairResult", pairResult);
         } catch (error) {
             throw error;
@@ -60,21 +46,22 @@ export const Scanner = () => {
             <QRCodeScanner
                 onRead={(e: any) => onRead(e.data)}
                 fadeIn={false}
+                showMarker={true}
                 topContent={
                     <Text style={styles.centerText}>
                         Scan WalletConnect QRcode
                     </Text>
                 }
             />
-            <TextInput
-                style={styles.inputText}
-                placeholder="Eller skriv WC kode her"
-                onChangeText={(text: string) => onTextInput(text)}
-                defaultValue={""}
-                showSoftInputOnFocus={false}
-            />
-            {/* TODO : Only for test */}
-            <Button text="Reset storage" onPress={() => clearAsyncStorage()} />
+            {isTest && (
+                <TextInput
+                    style={styles.inputText}
+                    placeholder="Eller skriv WC kode her"
+                    onChangeText={(text: string) => onTextInput(text)}
+                    defaultValue={""}
+                    showSoftInputOnFocus={false}
+                />
+            )}
         </>
     );
 };

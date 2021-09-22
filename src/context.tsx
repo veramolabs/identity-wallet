@@ -25,14 +25,21 @@ import {
 import Client from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { ethers } from "ethers";
-import React, { createContext, useEffect, useState } from "react";
+import React, {
+    createContext,
+    SetStateAction,
+    useEffect,
+    useState,
+} from "react";
 import {
     DEFAULT_MAIN_CHAINS,
     DEFAULT_RPC_PROVIDER_MAIN,
     DEFAULT_RPC_PROVIDER_TEST,
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
+import useInterval from "./hooks/useInterval";
 import { navigate } from "./navigation";
+import { CachedPairing } from "./types/CachedPairing";
 import { useVeramo } from "./utils/useVeramo";
 import { useWalletconnect } from "./utils/useWalletconnect";
 
@@ -55,6 +62,7 @@ export interface IContext {
     proposals: SessionTypes.Proposal[];
     setProposals: Dispatch<SessionTypes.Proposal[]>;
     requests: SessionTypes.RequestEvent[];
+    cachedPairing: CachedPairing | undefined;
     setRequests: Dispatch<SessionTypes.RequestEvent[]>;
     closeSession: (topic: string) => Promise<void>;
     onApprove: (
@@ -80,6 +88,7 @@ export interface IContext {
         args: FindArgs<TCredentialColumns>
     ) => Promise<UniqueVerifiableCredential[]>;
     saveVP: (vp: VerifiablePresentation | string) => Promise<string>;
+    pair: (uri: string, requireTrustedIdentity: boolean) => Promise<void>;
 }
 
 export const Context = createContext<IContext>(undefined!);
@@ -104,8 +113,9 @@ export const ContextProvider = (props: any) => {
             })
     );
     const veramo = useVeramo(selectedChain);
-    const walletconnect = useWalletconnect(chains, veramo);
-    const [hasTrustedIndentity, setHasTrustedIndentity] = useState<boolean>();
+    const [hasTrustedIndentity, setHasTrustedIndentity] =
+        useState<boolean>(false);
+    const walletconnect = useWalletconnect(chains, veramo, hasTrustedIndentity);
 
     // Loading
     useEffect(() => {
@@ -114,8 +124,50 @@ export const ContextProvider = (props: any) => {
         }
     }, [veramo.accounts]);
 
-    // Check if user got indetifier
-    useEffect(() => {
+    // // Check if user got indetifier
+    // useEffect(() => {
+    //     let subscribed = true;
+    //     const doAsync = async () => {
+    //         if (veramo.accounts.length > 0) {
+    //             const address = veramo.accounts[0].split(":").pop();
+    //             if (address) {
+    //                 const vc = await veramo
+    //                     .findVC({
+    //                         where: [
+    //                             {
+    //                                 column: "issuer",
+    //                                 value: [BROK_HELPERS_VERIFIER],
+    //                             },
+    //                             // {
+    //                             //     column: "subject",
+    //                             //     value: [veramo.identity?.did],
+    //                             // },
+    //                         ],
+    //                     })
+    //                     .catch((err) => {
+    //                         console.error(err.message);
+    //                         throw err;
+    //                     });
+    //                 const hasRegistered = vc.find((vc) => {
+    //                     return (
+    //                         "brregRegistered" in
+    //                         vc.verifiableCredential.credentialSubject
+    //                     );
+    //                 });
+    //                 console.info("hasTrustedIndentity", !!hasRegistered);
+    //                 if (subscribed) {
+    //                     setHasTrustedIndentity(!!hasRegistered);
+    //                 }
+    //             }
+    //         }
+    //     };
+    //     doAsync();
+    //     return () => {
+    //         subscribed = false;
+    //     };
+    // }, [veramo, veramo.accounts, walletconnect.cachedPairing]);
+
+    useInterval(() => {
         let subscribed = true;
         const doAsync = async () => {
             if (veramo.accounts.length > 0) {
@@ -155,15 +207,7 @@ export const ContextProvider = (props: any) => {
         return () => {
             subscribed = false;
         };
-    }, [veramo, veramo.accounts]);
-
-    // navigate user if not got identifier
-    useEffect(() => {
-        if (hasTrustedIndentity === false) {
-            // TODO - @Asbjørn - Make toast about going to bankID
-            navigate("Bankid");
-        }
-    }, [hasTrustedIndentity]);
+    }, 3000);
 
     // Make the context object:
     const context: IContext = {

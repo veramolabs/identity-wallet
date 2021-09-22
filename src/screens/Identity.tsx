@@ -1,7 +1,6 @@
 import React from "react";
 import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
-import { WalletInfo } from "../components/ui/WalletInfo";
-import { VPApprovalView } from "../components/VPApprovalView";
+import { WalletInfo } from "../components/wallet/WalletInfo";
 
 export const Identity = () => {
     return (

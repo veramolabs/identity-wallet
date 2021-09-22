@@ -12,5 +12,11 @@ module.exports = {
                 allowUndefined: true,
             },
         ],
+        [
+            "babel-plugin-inline-import",
+            {
+                "extensions": [".svg"]
+            }
+        ]
     ],
 };

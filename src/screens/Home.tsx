@@ -3,17 +3,20 @@ import { SessionTypes } from "@walletconnect/types";
 import React, { useContext, useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Button,
     SafeAreaView,
     StatusBar,
     StyleSheet,
     View,
 } from "react-native";
+import { ColorContext, ColorSystem } from "../colorContext";
+import { Button, SymfoniButton } from "../components/ui/button";
 import { Context } from "../context";
-import { navigate } from "./../navigation";
+import { navigate } from "../navigation";
 
 export const Home = () => {
     const { loading, client, closeSession } = useContext(Context);
+    const { colors } = useContext(ColorContext);
+    const styles = makeStyles(colors);
     const [sessions, setSessions] = useState<SessionTypes.Settled[]>([]);
     const activeSessions = client?.session.values.length;
 
@@ -49,8 +52,10 @@ export const Home = () => {
                     <ActivityIndicator size="large" />
                 ) : (
                     <View style={styles.actionContainer}>
-                        <Button
-                            title="Scan QR"
+                        <SymfoniButton
+                            icon={"qr"}
+                            type="primary"
+                            text="Scan QR"
                             onPress={() => navigate("Scanner")}
                         />
                     </View>
@@ -60,14 +65,17 @@ export const Home = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 10,
-        justifyContent: "center",
-    },
-    actionContainer: {
-        flexDirection: "row",
-        alignSelf: "center",
-    },
-});
+const makeStyles = (colors: ColorSystem) => {
+    return StyleSheet.create({
+        container: {
+            backgroundColor: colors.background,
+            flex: 1,
+            padding: 10,
+            justifyContent: "center",
+        },
+        actionContainer: {
+            flexDirection: "row",
+            alignSelf: "center",
+        },
+    });
+};
