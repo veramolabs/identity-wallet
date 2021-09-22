@@ -15,15 +15,23 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { BankidWebview } from "../components/bankid/BankidWebview";
-import { registerForvalt } from "../presenter/ForvaltPresenter";
+import { VPApprovalView } from "../components/wallet";
 import { Context } from "../context";
 import { goBack } from "../navigation";
+import { registerForvalt } from "../presenter/ForvaltPresenter";
 import { BankidJWTPayload } from "../types/bankid.types";
-import { VPApprovalView } from "../components/wallet";
 
 export const BankId = () => {
-    const { createVC, createVP, decodeJWT, identity, findVC, saveVP } =
-        useContext(Context);
+    const {
+        createVC,
+        createVP,
+        decodeJWT,
+        identity,
+        findVC,
+        saveVP,
+        cachedPairing,
+        pair,
+    } = useContext(Context);
     const [loading, setLoading] = useState(false);
     const [done, setDone] = useState();
     const [errors, setErrors] = useState<string[]>([]);
@@ -71,12 +79,33 @@ export const BankId = () => {
                 console.log("RESULT register vp", result);
                 saveVP(result.data);
                 setPendingApprovalVp(undefined);
+                checkCachedPairingsAndPair();
                 setLoading(false);
                 goBack();
             })
             .catch((error: AxiosError) => {
+                console.log(error);
                 setErrors((old) => [...old, error.response?.data.message]);
             });
+    };
+
+    const checkCachedPairingsAndPair = () => {
+        if (!!cachedPairing) {
+            const initiatedPairingTime = cachedPairing.timeInitiated;
+            const now = Date.now();
+            const ellapsedTime = now - initiatedPairingTime;
+            // 5min
+            if (ellapsedTime > 300000) {
+                Toast.show({
+                    type: "info",
+                    text1: "Pairing request is outdated. Please pair again",
+                    topOffset: 100,
+                    position: "top",
+                });
+            } else {
+                pair(cachedPairing.uri, true);
+            }
+        }
     };
 
     // Use authVC to register

@@ -38,6 +38,7 @@ import {
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
 import { navigate } from "./navigation";
+import { CachedPairing } from "./types/CachedPairing";
 import { useVeramo } from "./utils/useVeramo";
 import { useWalletconnect } from "./utils/useWalletconnect";
 
@@ -60,6 +61,7 @@ export interface IContext {
     proposals: SessionTypes.Proposal[];
     setProposals: Dispatch<SessionTypes.Proposal[]>;
     requests: SessionTypes.RequestEvent[];
+    cachedPairing: CachedPairing | undefined;
     setRequests: Dispatch<SessionTypes.RequestEvent[]>;
     closeSession: (topic: string) => Promise<void>;
     onApprove: (
@@ -85,6 +87,7 @@ export interface IContext {
         args: FindArgs<TCredentialColumns>
     ) => Promise<UniqueVerifiableCredential[]>;
     saveVP: (vp: VerifiablePresentation | string) => Promise<string>;
+    pair: (uri: string, requireTrustedIdentity: boolean) => Promise<void>;
 }
 
 export const Context = createContext<IContext>(undefined!);
@@ -109,8 +112,9 @@ export const ContextProvider = (props: any) => {
             })
     );
     const veramo = useVeramo(selectedChain);
-    const walletconnect = useWalletconnect(chains, veramo);
-    const [hasTrustedIndentity, setHasTrustedIndentity] = useState<boolean>();
+    const [hasTrustedIndentity, setHasTrustedIndentity] =
+        useState<boolean>(false);
+    const walletconnect = useWalletconnect(chains, veramo, hasTrustedIndentity);
 
     // Loading
     useEffect(() => {
@@ -161,14 +165,6 @@ export const ContextProvider = (props: any) => {
             subscribed = false;
         };
     }, [veramo, veramo.accounts]);
-
-    // navigate user if not got identifier
-    useEffect(() => {
-        if (hasTrustedIndentity === false) {
-            // TODO - @Asbjørn - Make toast about going to bankID
-            // navigate("Bankid");
-        }
-    }, [hasTrustedIndentity]);
 
     // Make the context object:
     const context: IContext = {

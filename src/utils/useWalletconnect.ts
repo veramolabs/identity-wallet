@@ -20,14 +20,18 @@ import {
 import { goBack, navigate } from "./../navigation";
 import { useVeramoInterface } from "./useVeramo";
 import { normalizePresentation } from "did-jwt-vc";
+import { CachedPairing } from "../types/CachedPairing";
 
 export const useWalletconnect = (
     supportedChains: string[],
-    veramo: useVeramoInterface
+    veramo: useVeramoInterface,
+    hasTrustedIdentity: boolean
 ) => {
     const [client, setClient] = useState<Client | undefined>(undefined);
     const [proposals, setProposals] = useState<SessionTypes.Proposal[]>([]);
     const [requests, setRequests] = useState<SessionTypes.RequestEvent[]>([]);
+    const [cachedPairing, setCachedPairing] = useState<CachedPairing>();
+
 
     // Init Walletconnect client
     useEffect(() => {
@@ -64,6 +68,28 @@ export const useWalletconnect = (
             navigate("Modal");
         }
     }, [requests, proposals]);
+
+    const pair = async (uri: string, requireTrustedIdentity: boolean) => {
+        console.log(`In pair. Uri: ${uri}, requireTrustedIdentity: ${requireTrustedIdentity}`)
+        console.log(`Has trusted identity: ${hasTrustedIdentity}`)
+        if (requireTrustedIdentity) {
+            if (!hasTrustedIdentity) {
+                const initiatedTime = Date.now()
+                const cachedPairing: CachedPairing = {
+                    uri: uri,
+                    timeInitiated: initiatedTime
+                }
+
+                setCachedPairing(cachedPairing)
+                console.log("In Pair and cachedPairing is set")
+                console.log(cachedPairing)
+                navigate("Bankid")
+            }
+        } else {
+            const pairResult = await client?.pair({ uri: uri })
+            console.log("PairResult", pairResult)
+        }
+    }
 
     const handleRequest = useCallback(
         (_requestEvent: SessionTypes.RequestEvent) => {
@@ -150,7 +176,7 @@ export const useWalletconnect = (
                     formatJsonRpcError(
                         event.request.id,
                         "Unrecognised method not supported " +
-                            event.request.method
+                        event.request.method
                     );
 
                 if (event.request.method === "eth_signTransaction") {
@@ -316,5 +342,8 @@ export const useWalletconnect = (
         onReject,
         setProposals,
         setRequests,
+        cachedPairing,
+        pair
     };
 };
+
