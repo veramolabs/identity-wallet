@@ -3,7 +3,6 @@ import { BigNumber, ethers } from "ethers";
 import React, { useContext, useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    AsyncStorage,
     Platform,
     StyleSheet,
     Text,
@@ -19,6 +18,7 @@ import {
     ColorContextProvider,
     ColorSystem,
 } from "../../colorContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const WalletInfo = () => {
     const { isTest, accounts, provider, deleteVeramoData, identity } =
@@ -48,15 +48,7 @@ export const WalletInfo = () => {
     }, [accounts, address, provider]);
 
     const clearAsyncStorage = async () => {
-        const asyncStorageKeys = await AsyncStorage.getAllKeys();
-        if (asyncStorageKeys.length > 0) {
-            if (Platform.OS === "android") {
-                await AsyncStorage.clear();
-            }
-            if (Platform.OS === "ios") {
-                await AsyncStorage.multiRemove(asyncStorageKeys);
-            }
-        }
+        AsyncStorage.clear();
     };
 
     if (!address) {
