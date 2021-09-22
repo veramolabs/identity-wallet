@@ -1,5 +1,4 @@
 import React from "react";
-import { AsyncStorage, Platform, View } from "react-native";
 import { WalletInfo } from "../../components/wallet";
 
 interface Props {}

@@ -13,7 +13,7 @@ import {
     ProfileMenuRoute,
     profileNavigate,
     PROFILE_ROUTES,
-} from "./profileNavigation";
+} from "./ProfileNavigation";
 
 export const Profile = () => {
     const { colors } = useContext(ColorContext);
