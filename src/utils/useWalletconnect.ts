@@ -7,11 +7,15 @@ import {
     JsonRpcResponse,
 } from "@json-rpc-tools/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { VerifiableCredential, VerifiablePresentation } from "@veramo/core";
 import Client, { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
+import { normalizePresentation } from "did-jwt-vc";
 import { useCallback, useEffect, useState } from "react";
-import { ForvaltRepositoryImpl } from "../domain/ForvaltRepository";
+import { SegmentedControlIOSComponent } from "react-native";
+import Toast from "react-native-toast-message";
+import { requestBoardDirectorVerifiableCredential } from "../domain";
+import useInterval from "../hooks/useInterval";
+import { CachedPairing } from "../types/CachedPairing";
 import {
     DEFAULT_APP_METADATA,
     DEFAULT_EIP155_METHODS,
@@ -19,8 +23,6 @@ import {
 } from "./../constants/default";
 import { goBack, navigate } from "./../navigation";
 import { useVeramoInterface } from "./useVeramo";
-import { normalizePresentation } from "did-jwt-vc";
-import { CachedPairing } from "../types/CachedPairing";
 
 export const useWalletconnect = (
     supportedChains: string[],
@@ -32,6 +34,42 @@ export const useWalletconnect = (
     const [requests, setRequests] = useState<SessionTypes.RequestEvent[]>([]);
     const [cachedPairing, setCachedPairing] = useState<CachedPairing>();
 
+    useInterval(() => {
+        if (!!cachedPairing) {
+            const initiatedPairingTime = cachedPairing.timeInitiated;
+            const now = Date.now();
+            const ellapsedTime = now - initiatedPairingTime;
+            // 5min
+            if (ellapsedTime > 300000) {
+                console.log("Check outdated pairing. Is outdated!!");
+                Toast.show({
+                    type: "info",
+                    text1: "Tilkoblingsforespørsel er utgått. Vennligst start ny kobling fra nettside",
+                    text2: "Vennligst start ny kobling fra nettside",
+                    topOffset: 100,
+                    position: "top",
+                });
+                setCachedPairing(undefined);
+            }
+        }
+    }, 5000);
+
+    useEffect(() => {
+        console.log(
+            "useWalletConnect tryPair UE",
+            hasTrustedIdentity,
+            cachedPairing
+        );
+        if (!hasTrustedIdentity) {
+            return;
+        }
+
+        if (!cachedPairing) {
+            return;
+        }
+
+        pair(cachedPairing.uri, true);
+    }, [hasTrustedIdentity, cachedPairing]);
 
     // Init Walletconnect client
     useEffect(() => {
@@ -70,26 +108,33 @@ export const useWalletconnect = (
     }, [requests, proposals]);
 
     const pair = async (uri: string, requireTrustedIdentity: boolean) => {
-        console.log(`In pair. Uri: ${uri}, requireTrustedIdentity: ${requireTrustedIdentity}`)
-        console.log(`Has trusted identity: ${hasTrustedIdentity}`)
-        if (requireTrustedIdentity) {
-            if (!hasTrustedIdentity) {
-                const initiatedTime = Date.now()
-                const cachedPairing: CachedPairing = {
-                    uri: uri,
-                    timeInitiated: initiatedTime
-                }
+        console.log(
+            `In pair. Uri: ${uri}, requireTrustedIdentity: ${requireTrustedIdentity}`
+        );
+        console.log(`Has trusted identity: ${hasTrustedIdentity}`);
+        if (requireTrustedIdentity && !hasTrustedIdentity) {
+            const initiatedTime = Date.now();
+            const cachedPairing: CachedPairing = {
+                uri: uri,
+                timeInitiated: initiatedTime,
+            };
 
-                setCachedPairing(cachedPairing)
-                console.log("In Pair and cachedPairing is set")
-                console.log(cachedPairing)
-                navigate("Bankid")
-            }
+            setCachedPairing(cachedPairing);
+            console.log("In Pair and cachedPairing is set");
+            console.log(cachedPairing);
+            navigate("Bankid");
         } else {
-            const pairResult = await client?.pair({ uri: uri })
-            console.log("PairResult", pairResult)
+            console.log("uri", uri);
+            try {
+                const pairResult = await client?.pair({ uri: uri });
+                console.log("pari", pairResult);
+                navigate("Home");
+                console.log("PairResult", pairResult);
+            } catch (e: any) {
+                console.log(e);
+            }
         }
-    }
+    };
 
     const handleRequest = useCallback(
         (_requestEvent: SessionTypes.RequestEvent) => {
@@ -176,7 +221,7 @@ export const useWalletconnect = (
                     formatJsonRpcError(
                         event.request.id,
                         "Unrecognised method not supported " +
-                        event.request.method
+                            event.request.method
                     );
 
                 if (event.request.method === "eth_signTransaction") {
@@ -227,11 +272,8 @@ export const useWalletconnect = (
                             BROK_HELPERS_VERIFIER,
                             [vc]
                         );
-                        const forvaltRepository = new ForvaltRepositoryImpl();
                         const res =
-                            await forvaltRepository.requestBoardDirectorVerifiableCredential(
-                                vp
-                            );
+                            await requestBoardDirectorVerifiableCredential(vp);
                         veramo.saveVP(res.data);
 
                         const reqVP = normalizePresentation(res.data);
@@ -257,8 +299,9 @@ export const useWalletconnect = (
                     topic: event.topic,
                     response,
                 });
-            } catch (e) {
+            } catch (e: any) {
                 console.error(e);
+                console.error(e.message);
             }
 
             setRequests(requests.length > 1 ? requests.slice(1) : []);
@@ -343,7 +386,6 @@ export const useWalletconnect = (
         setProposals,
         setRequests,
         cachedPairing,
-        pair
+        pair,
     };
 };
-

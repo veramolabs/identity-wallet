@@ -16,8 +16,8 @@ import {
 import Toast from "react-native-toast-message";
 import { BankidWebview } from "../components/bankid/BankidWebview";
 import { Context } from "../context";
+import { registerWithBankId } from "../domain";
 import { goBack } from "../navigation";
-import { registerForvalt } from "../presenter/ForvaltPresenter";
 import { BankidJWTPayload } from "../types/bankid.types";
 
 export const BankId = () => {
@@ -61,11 +61,15 @@ export const BankId = () => {
     }, [errors]);
 
     const registerInForvaltAndSaveVP = (vp: VerifiablePresentation) => {
-        registerForvalt(vp)
-            .then((result) => {
+        registerWithBankId(vp)
+            .then(async (result) => {
                 console.log("RESULT register vp", result);
-                saveVP(result.data);
-                checkCachedPairingsAndPair();
+                await saveVP(result.data);
+                const sleep = new Promise((resolve) => {
+                    setTimeout(() => resolve(true), 2000);
+                });
+                await sleep;
+                //checkCachedPairingsAndPair();
                 setLoading(false);
                 goBack();
             })
@@ -121,6 +125,8 @@ export const BankId = () => {
             });
 
             const vp = await createVP(BROK_HELPERS_VERIFIER, [vc.proof.jwt]);
+            console.log("vp");
+            console.log(vp);
             registerInForvaltAndSaveVP(vp);
         } catch (error: any) {
             setLoading(false);
