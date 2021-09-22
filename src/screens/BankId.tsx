@@ -15,25 +15,15 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { BankidWebview } from "../components/bankid/BankidWebview";
-import { VPApprovalView } from "../components/wallet";
 import { Context } from "../context";
 import { goBack } from "../navigation";
 import { registerForvalt } from "../presenter/ForvaltPresenter";
 import { BankidJWTPayload } from "../types/bankid.types";
 
 export const BankId = () => {
-    const {
-        createVC,
-        createVP,
-        decodeJWT,
-        identity,
-        findVC,
-        saveVP,
-        cachedPairing,
-        pair,
-    } = useContext(Context);
+    const { createVC, createVP, saveVP, cachedPairing, pair } =
+        useContext(Context);
     const [loading, setLoading] = useState(false);
-    const [done, setDone] = useState();
     const [errors, setErrors] = useState<string[]>([]);
     const [bankidToken, setBankidToken] = useState<string>(() => {
         return USE_TEST_DATA
@@ -47,9 +37,6 @@ export const BankId = () => {
         USE_TEST_DATA ? "Testveien 123" : ""
     );
     const [postcode, setPostcode] = useState(USE_TEST_DATA ? "0556" : "");
-    const [pendingApprovalVp, setPendingApprovalVp] = useState<
-        VerifiablePresentation | undefined
-    >();
 
     useEffect(() => {
         if (!bankidToken) {
@@ -78,7 +65,6 @@ export const BankId = () => {
             .then((result) => {
                 console.log("RESULT register vp", result);
                 saveVP(result.data);
-                setPendingApprovalVp(undefined);
                 checkCachedPairingsAndPair();
                 setLoading(false);
                 goBack();
@@ -86,6 +72,8 @@ export const BankId = () => {
             .catch((error: AxiosError) => {
                 console.log(error);
                 setErrors((old) => [...old, error.response?.data.message]);
+                setLoading(false);
+                setBankidToken("");
             });
     };
 
@@ -126,14 +114,14 @@ export const BankId = () => {
             }
             setLoading(true);
             const vc = await createVC({
-                epost: email,
-                veiadresse: streetAddress,
-                postnummer: postcode,
+                email: email,
+                streetAddress: streetAddress,
+                postalCode: postcode,
                 identityProof: bankidToken,
             });
 
             const vp = await createVP(BROK_HELPERS_VERIFIER, [vc.proof.jwt]);
-            setPendingApprovalVp(vp);
+            registerInForvaltAndSaveVP(vp);
         } catch (error: any) {
             setLoading(false);
             setErrors((old) => [...old, error.message]);
@@ -159,19 +147,7 @@ export const BankId = () => {
                             <ActivityIndicator />
                         </View>
                     )}
-                    {pendingApprovalVp && (
-                        <VPApprovalView
-                            vp={pendingApprovalVp.proof.jwt}
-                            onApprove={() =>
-                                registerInForvaltAndSaveVP(pendingApprovalVp)
-                            }
-                            onReject={() => {
-                                setLoading(false);
-                                setPendingApprovalVp(undefined);
-                                console.log("rejected");
-                            }}
-                        />
-                    )}
+
                     {/* Show bankidWebview */}
                     {!bankidToken && (
                         <BankidWebview
