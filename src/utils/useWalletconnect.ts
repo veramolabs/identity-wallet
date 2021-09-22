@@ -13,7 +13,7 @@ import { normalizePresentation } from "did-jwt-vc";
 import { useCallback, useEffect, useState } from "react";
 import { SegmentedControlIOSComponent } from "react-native";
 import Toast from "react-native-toast-message";
-import { requestBoardDirectorVerifiableCredential } from "../domain";
+import { requestBoardDirectorVerifiableCredential } from "../domain/brok-helpers";
 import useInterval from "../hooks/useInterval";
 import { CachedPairing } from "../types/CachedPairing";
 import {
