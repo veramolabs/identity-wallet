@@ -16,7 +16,7 @@ import {
 import Toast from "react-native-toast-message";
 import { BankidWebview } from "../components/bankid/BankidWebview";
 import { Context } from "../context";
-import { registerWithBankId } from "../domain";
+import { registerWithBankId } from "../domain/brok-helpers";
 import { goBack } from "../navigation";
 import { BankidJWTPayload } from "../types/bankid.types";
 
