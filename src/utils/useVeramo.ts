@@ -18,16 +18,17 @@ import {
 import { normalizePresentation } from "did-jwt-vc";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
+import { JwtPayload, VerifyOptions } from "../context";
 import { agent as _agent } from "./../utils/VeramoUtils";
 import { deleteVeramoData } from "./../utils/VeramoUtils";
 
 export type Agent = TAgent<
     IDIDManager &
-        IKeyManager &
-        IDataStore &
-        IDataStoreORM &
-        IResolver &
-        ICredentialIssuer
+    IKeyManager &
+    IDataStore &
+    IDataStoreORM &
+    IResolver &
+    ICredentialIssuer
 >;
 
 export type useVeramoInterface = ReturnType<typeof useVeramo>;
@@ -169,8 +170,7 @@ export const useVeramo = (chainId: string) => {
                                         return decoded;
                                     } catch (error) {
                                         errors.push(
-                                            `Error decoding subcredential: ${
-                                                error.message
+                                            `Error decoding subcredential: ${error.message
                                             }. \nSubcredential was: \n${Buffer.from(
                                                 subJWT.split(".")[1],
                                                 "base64"
@@ -225,8 +225,7 @@ export const useVeramo = (chainId: string) => {
                     } else if (Array.isArray(verifyOptions.issuer)) {
                         if (!verifyOptions.issuer.includes(payload.iss)) {
                             errors.push(
-                                `JWT issuer was ${
-                                    payload.iss
+                                `JWT issuer was ${payload.iss
                                 }, expected one of ${verifyOptions.issuer.join(
                                     " | "
                                 )}`
@@ -281,6 +280,9 @@ export const useVeramo = (chainId: string) => {
     };
 
     const saveVP = async (vp: VerifiablePresentation | string) => {
+        console.log("trysaveVp")
+        console.log(vp)
+
         if (typeof vp === "string") {
             vp = normalizePresentation(vp);
         }

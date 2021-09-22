@@ -37,6 +37,7 @@ import {
     DEFAULT_RPC_PROVIDER_TEST,
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
+import useInterval from "./hooks/useInterval";
 import { navigate } from "./navigation";
 import { CachedPairing } from "./types/CachedPairing";
 import { useVeramo } from "./utils/useVeramo";
@@ -123,8 +124,50 @@ export const ContextProvider = (props: any) => {
         }
     }, [veramo.accounts]);
 
-    // Check if user got indetifier
-    useEffect(() => {
+    // // Check if user got indetifier
+    // useEffect(() => {
+    //     let subscribed = true;
+    //     const doAsync = async () => {
+    //         if (veramo.accounts.length > 0) {
+    //             const address = veramo.accounts[0].split(":").pop();
+    //             if (address) {
+    //                 const vc = await veramo
+    //                     .findVC({
+    //                         where: [
+    //                             {
+    //                                 column: "issuer",
+    //                                 value: [BROK_HELPERS_VERIFIER],
+    //                             },
+    //                             // {
+    //                             //     column: "subject",
+    //                             //     value: [veramo.identity?.did],
+    //                             // },
+    //                         ],
+    //                     })
+    //                     .catch((err) => {
+    //                         console.error(err.message);
+    //                         throw err;
+    //                     });
+    //                 const hasRegistered = vc.find((vc) => {
+    //                     return (
+    //                         "brregRegistered" in
+    //                         vc.verifiableCredential.credentialSubject
+    //                     );
+    //                 });
+    //                 console.info("hasTrustedIndentity", !!hasRegistered);
+    //                 if (subscribed) {
+    //                     setHasTrustedIndentity(!!hasRegistered);
+    //                 }
+    //             }
+    //         }
+    //     };
+    //     doAsync();
+    //     return () => {
+    //         subscribed = false;
+    //     };
+    // }, [veramo, veramo.accounts, walletconnect.cachedPairing]);
+
+    useInterval(() => {
         let subscribed = true;
         const doAsync = async () => {
             if (veramo.accounts.length > 0) {
@@ -164,7 +207,7 @@ export const ContextProvider = (props: any) => {
         return () => {
             subscribed = false;
         };
-    }, [veramo, veramo.accounts]);
+    }, 3000);
 
     // Make the context object:
     const context: IContext = {
