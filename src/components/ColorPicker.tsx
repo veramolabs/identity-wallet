@@ -9,10 +9,9 @@ import {
 } from "react-native";
 import { ColorPicker, fromHsv } from "react-native-color-picker";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 import { ColorContext, ColorSystem } from "../colorContext";
 import { Buttons } from "../styles";
-import { Button, SymfoniButton } from "./ui/button";
+import { SymfoniButton } from "./ui/button";
 
 interface Props {}
 
@@ -45,24 +44,15 @@ export const SymfoniColorPicker: React.FC<Props> = ({ ...props }) => {
             return;
         }
 
-        console.log("propname", editColor.propName);
-        console.log("nestedPropName", editColor.nestedPropName);
-
         if (editColor.nestedPropName != undefined) {
-            newColors = Object.assign({}, editColor, {
+            newColors = {
                 ...editedColors,
                 [editColor.propName]: {
-                    ...[editColor.propName],
+                    // @ts-ignore
+                    ...editedColors[editColor.propName],
                     [editColor.nestedPropName]: newColor,
                 },
-            });
-            // newColors = {
-            //     ...editedColors,
-            //     [editColor.propName]: {
-            //         ...[editColor.propName],
-            //         [editColor.nestedPropName]: newColor,
-            //     },
-            // };
+            };
             console.log(newColors);
         } else {
             newColors = {
@@ -70,7 +60,6 @@ export const SymfoniColorPicker: React.FC<Props> = ({ ...props }) => {
                 [editColor.propName]: newColor,
             };
         }
-        console.log(newColors);
         updatePalette(newColors);
         setEditedColors(newColors);
         setEditColor(undefined);
@@ -158,12 +147,12 @@ export const SymfoniColorPicker: React.FC<Props> = ({ ...props }) => {
                     </Text>
                     <View style={styles.colors}>
                         {Object.entries(colors).map(([name, value], index) => {
-                            console.log(index);
                             if (typeof value == "object") {
                                 return Object.entries(value).map(
                                     ([_name, _value]) => {
                                         return (
                                             <Color
+                                                key={`${index}-${_value}`}
                                                 onPress={() =>
                                                     onColorPress(
                                                         name,
@@ -171,7 +160,6 @@ export const SymfoniColorPicker: React.FC<Props> = ({ ...props }) => {
                                                         _name
                                                     )
                                                 }
-                                                key={index}
                                                 propName={`${name} ${_name}`}
                                                 color={_value as string}
                                             />
@@ -181,7 +169,7 @@ export const SymfoniColorPicker: React.FC<Props> = ({ ...props }) => {
                             } else {
                                 return (
                                     <Color
-                                        key={index}
+                                        key={`${index}-${value}`}
                                         onPress={() =>
                                             onColorPress(name, value)
                                         }
@@ -254,7 +242,6 @@ const makeStyles = (colors: ColorSystem) => {
             alignContent: "center",
             flexWrap: "wrap",
             maxHeight: 300,
-            backgroundColor: "#898989",
         },
     });
 };
