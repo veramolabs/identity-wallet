@@ -1,11 +1,10 @@
 import React, { useContext } from "react";
 import { StyleSheet, Text, TextInput } from "react-native";
-import { color } from "react-native-elements/dist/helpers";
 import QRCodeScanner from "react-native-qrcode-scanner";
 import { Context } from "./../../context";
 
 export const Scanner = () => {
-    const { client, isTest } = useContext(Context);
+    const { client, isTest, pair } = useContext(Context);
 
     async function onRead(data: any) {
         console.log("onRead", data);
@@ -19,7 +18,7 @@ export const Scanner = () => {
             if (typeof client === "undefined") {
                 return;
             }
-            await client.pair({ uri: data });
+            await pair(data, true);
         } catch (e) {
             console.error(e);
             return;
@@ -35,7 +34,7 @@ export const Scanner = () => {
             if (!client) {
                 throw Error("WalletConnect client not initialized");
             }
-            const pairResult = await client.pair({ uri: uri });
+            const pairResult = await pair(uri, true);
             console.debug("pairResult", pairResult);
         } catch (error) {
             throw error;
@@ -68,9 +67,6 @@ export const Scanner = () => {
 };
 
 export const styles = StyleSheet.create({
-    qrMarker: {
-        color: "red",
-    },
     inputText: {
         borderColor: "#ccc",
         backgroundColor: "#ccc",
