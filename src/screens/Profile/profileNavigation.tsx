@@ -1,4 +1,7 @@
-import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
+import {
+    createNavigationContainerRef,
+    NavigationContainer,
+} from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useContext } from "react";
 import { ColorContext } from "../../colorContext";
@@ -7,14 +10,6 @@ import { PROFILE_ROUTES, ProfileMenuRoute, isDivider } from "./ProfileRoutes";
 
 const ProfileStack = createStackNavigator();
 export const profileNavigationRef = createNavigationContainerRef();
-
-export function profileNavigate(name: string, params?: any) {
-    profileNavigationRef.navigate(name, params);
-}
-
-export function goBackProfile() {
-    profileNavigationRef.goBack();
-}
 
 export const ProfileNavigation = () => {
     const { colors } = useContext(ColorContext);
