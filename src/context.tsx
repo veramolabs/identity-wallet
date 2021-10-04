@@ -38,8 +38,9 @@ import {
     DEFAULT_TEST_CHAINS,
 } from "./constants/default";
 import useInterval from "./hooks/useInterval";
-import { navigate } from "./navigation";
 import { CachedPairing } from "./types/CachedPairing";
+import { JwtPayload } from "./types/JwtPayload";
+import { VerifyOptions } from "./types/VerifyOptions";
 import { useVeramo } from "./utils/useVeramo";
 import { useWalletconnect } from "./utils/useWalletconnect";
 
@@ -227,24 +228,3 @@ export const ContextProvider = (props: any) => {
 };
 
 export const { Consumer } = Context;
-export interface VerifyOptions {
-    audience: string;
-    complete: boolean;
-    issuer: string | string[];
-    ignoreExpiration: boolean;
-    ignoreNotBefore: boolean;
-    subject: string;
-    decodeCredentials: boolean;
-    requireVerifiablePresentation: boolean;
-}
-
-export interface JwtPayload {
-    [key: string]: any;
-    iss?: string;
-    sub?: string;
-    aud?: string | string[];
-    exp?: number;
-    nbf?: number;
-    iat?: number;
-    jti?: string;
-}

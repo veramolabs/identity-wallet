@@ -1,4 +1,5 @@
 import { BROK_HELPERS_VERIFIER, USE_TEST_DATA } from "@env";
+import { useNavigation } from "@react-navigation/native";
 import { VerifiablePresentation } from "@veramo/core";
 import { AxiosError } from "axios";
 import { decodeJWT as decodeJWT2 } from "did-jwt";
@@ -17,10 +18,10 @@ import Toast from "react-native-toast-message";
 import { BankidWebview } from "../components/bankid/BankidWebview";
 import { Context } from "../context";
 import { registerWithBankId } from "../domain/brok-helpers";
-import { goBack } from "../navigation";
 import { BankidJWTPayload } from "../types/bankid.types";
 
 export const BankId = () => {
+    const { goBack } = useNavigation();
     const { createVC, createVP, saveVP, cachedPairing, pair } =
         useContext(Context);
     const [loading, setLoading] = useState(false);

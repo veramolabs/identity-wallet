@@ -1,7 +1,6 @@
 import React from "react";
 import { View } from "react-native";
 import { SymfoniModal } from "../../components/ui/Modal";
-import { goBack } from "../../navigation";
 
 interface Props {}
 
