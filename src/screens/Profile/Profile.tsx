@@ -1,4 +1,4 @@
-import { useTheme } from "@react-navigation/native";
+import { useNavigation, useTheme } from "@react-navigation/native";
 import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
@@ -8,14 +8,14 @@ import { Divider } from "../../components/ui";
 import { Colors, Sizing, Typography } from "../../styles";
 import { layout } from "../../styles/sizing";
 import {
-    isDivider,
     Item,
-    ProfileMenuRoute,
-    profileNavigate,
     PROFILE_ROUTES,
-} from "./ProfileNavigation";
+    ProfileMenuRoute,
+    isDivider,
+} from "./ProfileRoutes";
 
 export const Profile = () => {
+    const { navigate } = useNavigation();
     const { colors } = useContext(ColorContext);
     const styles = makeStyles(colors);
 
@@ -48,7 +48,7 @@ export const Profile = () => {
                         <TouchableOpacity
                             key={i}
                             style={styles.profileRow}
-                            onPress={() => profileNavigate(routeItem.routeId)}>
+                            onPress={() => navigate(routeItem.routeId)}>
                             <View
                                 style={{
                                     flexDirection: "row",

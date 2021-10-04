@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import React, { useContext, useEffect, useState } from "react";
@@ -11,9 +12,9 @@ import {
 import { ColorContext, ColorSystem } from "../colorContext";
 import { Button, SymfoniButton } from "../components/ui/button";
 import { Context } from "../context";
-import { navigate } from "../navigation";
 
 export const Home = () => {
+    const { navigate } = useNavigation();
     const { loading, client, closeSession } = useContext(Context);
     const { colors } = useContext(ColorContext);
     const styles = makeStyles(colors);

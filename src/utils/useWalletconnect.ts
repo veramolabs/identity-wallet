@@ -7,6 +7,7 @@ import {
     JsonRpcResponse,
 } from "@json-rpc-tools/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import Client, { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { normalizePresentation } from "did-jwt-vc";
@@ -21,7 +22,6 @@ import {
     DEFAULT_EIP155_METHODS,
     DEFAULT_RELAY_PROVIDER,
 } from "./../constants/default";
-import { goBack, navigate } from "./../navigation";
 import { useVeramoInterface } from "./useVeramo";
 
 export const useWalletconnect = (
@@ -29,6 +29,7 @@ export const useWalletconnect = (
     veramo: useVeramoInterface,
     hasTrustedIdentity: boolean
 ) => {
+    const { goBack, navigate } = useNavigation();
     const [client, setClient] = useState<Client | undefined>(undefined);
     const [proposals, setProposals] = useState<SessionTypes.Proposal[]>([]);
     const [requests, setRequests] = useState<SessionTypes.RequestEvent[]>([]);

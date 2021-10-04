@@ -18,7 +18,8 @@ import {
 import { normalizePresentation } from "did-jwt-vc";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { JwtPayload, VerifyOptions } from "../context";
+import { JwtPayload } from "../types/JwtPayload";
+import { VerifyOptions } from "../types/VerifyOptions";
 import { agent as _agent } from "./../utils/VeramoUtils";
 import { deleteVeramoData } from "./../utils/VeramoUtils";
 
