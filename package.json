@@ -20,6 +20,7 @@
     "@react-navigation/bottom-tabs": "^6.0.3",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^6.0.4",
+    "@react-navigation/core": "^6.0.2",
     "@veramo/core": "^2.1.0",
     "@veramo/credential-w3c": "^2.1.0",
     "@veramo/data-store": "^2.1.0",
