@@ -6,8 +6,8 @@ export const SCREEN_HOME = "Main";
 export function useLocalNavigation() {
     const navigation = useNavigation();
 
-    const navigateBankID = () => navigation.navigate(SCREEN_BANKID);
-    const navigateHome = () => navigation.navigate(SCREEN_HOME);
+    const navigateBankID = () => navigation.navigate({ name: SCREEN_BANKID });
+    const navigateHome = () => navigation.navigate({ name: SCREEN_HOME });
 
     return {
         navigateBankID,
