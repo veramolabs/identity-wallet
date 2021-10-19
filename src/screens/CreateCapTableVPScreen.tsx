@@ -10,7 +10,7 @@ import styled from "styled-components/native";
 import { ActivityIndicator, Linking } from "react-native";
 import {
     SCREEN_CREATE_CAP_TABLE_VP,
-    SCREEN_GET_BANKID,
+    SCREEN_BANKID,
     useLocalNavigation,
 } from "../hooks/useLocalNavigation";
 import { Context } from "../context";
@@ -21,7 +21,7 @@ import {
     CreateCapTableVPResult,
 } from "../types/createCapTableVPTypes";
 import { JsonRpcRequest, JsonRpcResult } from "@json-rpc-tools/types";
-import { formatJsonRpcResult, isJsonRpcRequest } from "@json-rpc-tools/utils";
+import { formatJsonRpcResult } from "@json-rpc-tools/utils";
 import { decodeJWT } from "did-jwt";
 import { BankidJWTPayload } from "../types/bankid.types";
 import { BankIDResult, makeBankIDRequest } from "../types/paramTypes";
@@ -72,7 +72,7 @@ export function CreateCapTableVPScreen(props: {
             resultScreen: SCREEN_CREATE_CAP_TABLE_VP,
         });
 
-        const result = await navigateWithResult(SCREEN_GET_BANKID, request);
+        const result = await navigateWithResult(SCREEN_BANKID, request);
 
         const bankID = decodeJWT(result.result.bankIDToken)
             .payload as BankidJWTPayload;

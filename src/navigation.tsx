@@ -8,7 +8,6 @@ import { Context } from "./context";
 import {
     SCREEN_BANKID,
     SCREEN_DEMO,
-    SCREEN_GET_BANKID,
     NAVIGATOR_TABS,
     SCREEN_HOME,
     SCREEN_CREATE_CAP_TABLE_VP,
@@ -117,7 +116,7 @@ export const Navigation = () => {
                 }}
             />
             <Stack.Screen
-                name={SCREEN_GET_BANKID}
+                name={SCREEN_BANKID}
                 component={BankIDScreen}
                 options={{
                     title: "Hent BankID",
