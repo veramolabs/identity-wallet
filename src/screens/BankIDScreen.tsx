@@ -6,10 +6,10 @@ import { BankidWebview } from "../components/bankid/BankidWebview";
 import { BankIDParam, makeBankIDResult } from "../types/paramTypes";
 import { JsonRpcRequest } from "@json-rpc-tools/types";
 
-export function GetBankIDScreen(props: {
+export function BankIDScreen(props: {
     route: { params: JsonRpcRequest<BankIDParam> };
 }) {
-    console.debug("GetBankIDScreen: ", { props });
+    console.debug("BankIDScreen: ", { props });
 
     const { navigate } = useNavigation();
     const [errors, setErrors] = useState<string[]>([]);
