@@ -13,13 +13,12 @@ import {
     SCREEN_HOME,
     SCREEN_CREATE_CAP_TABLE_VP,
 } from "./hooks/useLocalNavigation";
-import { BankId } from "./screens/BankId";
 import { DemoScreen } from "./screens/DemoScreen";
 import { Home } from "./screens/Home";
 import { Identity } from "./screens/Identity";
 import { ProfileNavigation } from "./screens/Profile/ProfileNavigation";
 import { CreateCapTableVPScreen } from "./screens/CreateCapTableVPScreen";
-import { GetBankIDScreen } from "./screens/GetBankIDScreen";
+import { BankIDScreen } from "./screens/BankIDScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -109,11 +108,6 @@ export const Navigation = () => {
                 }}
             />
             <Stack.Screen
-                name={SCREEN_BANKID}
-                component={BankId}
-                options={{ title: "BankID" }}
-            />
-            <Stack.Screen
                 name={SCREEN_CREATE_CAP_TABLE_VP}
                 component={CreateCapTableVPScreen}
                 options={{
@@ -124,7 +118,7 @@ export const Navigation = () => {
             />
             <Stack.Screen
                 name={SCREEN_GET_BANKID}
-                component={GetBankIDScreen}
+                component={BankIDScreen}
                 options={{
                     title: "Hent BankID",
                     headerLargeTitle: true,
