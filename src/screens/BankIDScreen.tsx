@@ -3,26 +3,26 @@ import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
 import styled from "styled-components/native";
 import { BankidWebview } from "../components/bankid/BankidWebview";
-import { ParamBankIDToken } from "../types/paramTypes";
+import { BankIDParam, makeBankIDResult } from "../types/paramTypes";
+import { JsonRpcRequest } from "@json-rpc-tools/types";
 
-export function GetBankIDScreen(props: {
-    route: { params: { id: number; resultScreen: string } };
+export function BankIDScreen(props: {
+    route: { params: JsonRpcRequest<BankIDParam> };
 }) {
-    console.debug("GetBankIDScreen: ", { props });
+    console.debug("BankIDScreen: ", { props });
 
     const { navigate } = useNavigation();
     const [errors, setErrors] = useState<string[]>([]);
     const [bankIDToken, setBankidToken] = useState<string | null>(null);
 
     useEffect(() => {
-        if (bankIDToken !== null) {
-            navigate(props.route.params.resultScreen, {
-                id: props.route.params.id,
-                method: "PARAM_BANKID_TOKEN",
-
-                params: { bankIDToken },
-            } as ParamBankIDToken);
+        if (bankIDToken === null) {
+            return;
         }
+
+        const result = makeBankIDResult(props.route.params, { bankIDToken });
+
+        navigate(props.route.params.params.resultScreen, result);
     }, [bankIDToken, navigate, props.route.params]);
 
     useEffect(() => {

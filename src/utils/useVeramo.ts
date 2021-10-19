@@ -112,10 +112,7 @@ export const useVeramo = (chainId: string) => {
                 ).toISOString(),
             },
         });
-
-        console.info(
-            `useVeramo.ts: createTermsOfUseVC() -> vc: ${JSON.stringify(vc)}`
-        );
+        console.info(`useVeramo.ts: createTermsOfUseVC() -> vc`);
 
         return vc;
     };
@@ -151,11 +148,7 @@ export const useVeramo = (chainId: string) => {
             },
         });
 
-        console.info(
-            `useVeramo.ts: createNationalIdentityVC() -> vc: ${JSON.stringify(
-                vc
-            )}`
-        );
+        console.info(`useVeramo.ts: createNationalIdentityVC() -> vc`);
 
         return vc;
     };
