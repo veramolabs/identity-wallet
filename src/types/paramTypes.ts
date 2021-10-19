@@ -1,9 +1,26 @@
-export type ParamBankIDToken = {
-    id: number;
-    method: "PARAM_BANKID_TOKEN";
-    params: {
-        bankIDToken: string;
-    };
+import {
+    formatJsonRpcRequest,
+    formatJsonRpcResult,
+    JsonRpcRequest,
+} from "@json-rpc-tools/utils";
+
+export function makeBankIDRequest(params: BankIDParam) {
+    return formatJsonRpcRequest("SymfoniID_requestBankID", params);
+}
+
+export function makeBankIDResult(
+    request: JsonRpcRequest<BankIDParam>,
+    result: BankIDResult
+) {
+    return formatJsonRpcResult(request.id, result);
+}
+
+export type BankIDParam = {
+    resultScreen: string;
+};
+
+export type BankIDResult = {
+    bankIDToken: string;
 };
 
 export type ParamPresentCredentialDemo = {
