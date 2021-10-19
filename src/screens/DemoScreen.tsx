@@ -5,7 +5,7 @@ import { useSymfoniContext } from "../context";
 import {
     SCREEN_CREATE_CAP_TABLE_VP,
     SCREEN_DEMO,
-    SCREEN_GET_BANKID,
+    SCREEN_BANKID,
 } from "../hooks/useLocalNavigation";
 import { useNavigationWithResult } from "../hooks/useNavigationWithResult";
 import { CreateCapTableVPParams } from "../types/createCapTableVPTypes";
@@ -76,7 +76,7 @@ export function DemoScreen() {
                     });
 
                     const result = await navigateWithResult(
-                        SCREEN_GET_BANKID,
+                        SCREEN_BANKID,
                         request
                     );
 
