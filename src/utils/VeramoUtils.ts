@@ -19,6 +19,7 @@ import {
     Entities,
     IDataStoreORM,
     KeyStore,
+    PrivateKeyStore,
 } from "@veramo/data-store";
 import { JwtMessageHandler } from "@veramo/did-jwt";
 import { DIDManager } from "@veramo/did-manager";
@@ -72,14 +73,16 @@ export const deleteVeramoData = () => {
 const agentConfig = {
     plugins: [
         new KeyManager({
-            store: new KeyStore(
-                dbConnection,
-                new SecretBox(
-                    "29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c"
-                )
-            ),
+            store: new KeyStore(dbConnection),
             kms: {
-                local: new KeyManagementSystem(),
+                local: new KeyManagementSystem(
+                    new PrivateKeyStore(
+                        dbConnection,
+                        new SecretBox(
+                            "29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c"
+                        )
+                    )
+                ),
             },
         }),
         new DIDManager({

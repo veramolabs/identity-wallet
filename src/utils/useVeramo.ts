@@ -20,14 +20,13 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { JwtPayload } from "../types/JwtPayload";
 import { VerifyOptions } from "../types/VerifyOptions";
-import { agent as _agent } from "./../utils/VeramoUtils";
-import { deleteVeramoData } from "./../utils/VeramoUtils";
 import { decodeJWT as decodeBankIDJWT } from "did-jwt";
 import { BankidJWTPayload } from "../types/bankid.types";
 import { TermsOfUseVC } from "../verifiableCredentials/TermsOfUseVC";
 import { NationalIdentityVC } from "../verifiableCredentials/NationalIdentityVC";
 import { CapTableVC } from "../verifiableCredentials/CapTableVC";
 import { CapTable } from "../types/capTableTypes";
+import { agent as _agent, deleteVeramoData } from "./../utils/VeramoUtils";
 
 export type Agent = TAgent<
     IDIDManager &
@@ -58,7 +57,7 @@ export const useVeramo = (chainId: string) => {
                 };
                 const identifiers = await agent.didManagerFind();
                 if (identifiers.length === 0) {
-                    return createIdentity();
+                    return await createIdentity();
                 }
                 return identifiers[0];
             } catch (error) {
