@@ -17,7 +17,6 @@ import { Context } from "../context";
 import { TermsOfUseVC } from "../verifiableCredentials/TermsOfUseVC";
 import { NationalIdentityVC } from "../verifiableCredentials/NationalIdentityVC";
 import {
-    CapTable,
     CreateCapTableVPParams,
     CreateCapTableVPResult,
 } from "../types/capTableTypes";
@@ -27,6 +26,7 @@ import { decodeJWT } from "did-jwt";
 import { BankidJWTPayload } from "../types/bankid.types";
 import { BankIDResult, makeBankIDRequest } from "../types/paramTypes";
 import { useNavigationWithResult } from "../hooks/useNavigationWithResult";
+import { useDeviceAuthentication } from "../hooks/useDeviceAuthentication";
 
 export function CreateCapTableVPScreen(props: {
     route: {
@@ -35,6 +35,7 @@ export function CreateCapTableVPScreen(props: {
             | JsonRpcResult<BankIDResult>;
     };
 }) {
+    const { checkDeviceAuthentication } = useDeviceAuthentication();
     const { navigateHome } = useLocalNavigation();
     const { navigateWithResult } = useNavigationWithResult(
         props.route.params as JsonRpcResult<BankIDResult>
@@ -112,6 +113,12 @@ export function CreateCapTableVPScreen(props: {
 
         try {
             setLoadingTermsOfUseVC(true);
+
+            const authenticated = await checkDeviceAuthentication();
+            if (!authenticated) {
+                return;
+            }
+
             const capTableTermsOfUseVC = await createTermsOfUseVC(
                 readAndAcceptedID
             );
