@@ -7,11 +7,12 @@ import {
 import { VerifiablePresentation } from "@veramo/core";
 import axios, { AxiosResponse } from "axios";
 
+
 export const registerWithBankId = (vp: VerifiablePresentation) => {
-    const url = USE_LOCAL_ENVIROMENT
+    const url = !!USE_LOCAL_ENVIROMENT
         ? "http://localhost:3004"
         : BROK_HELPERS_URL;
-    console.log(url);
+    console.log("registerBankIdUrl", url);
     return axios.post<{
         messages: string[];
         jwt: string;
@@ -26,7 +27,7 @@ export const registerWithBankId = (vp: VerifiablePresentation) => {
 export const requestBoardDirectorVerifiableCredential = (
     vp: VerifiablePresentation
 ) => {
-    const url = USE_LOCAL_ENVIROMENT
+    const url = !!USE_LOCAL_ENVIROMENT
         ? "http://localhost:3004"
         : BROK_HELPERS_URL;
     return axios.post<string>(`${url}/brreg/credential/board-director`, {
@@ -39,7 +40,7 @@ export const approveCaptable = (
     vp: VerifiablePresentation,
     options: { test?: false } = {}
 ) => {
-    const url = USE_LOCAL_ENVIROMENT
+    const url = !!USE_LOCAL_ENVIROMENT
         ? "http://localhost:3004"
         : BROK_HELPERS_URL;
     return axios.post<string>(`${url}/brreg/captable/approve`, {
