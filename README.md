@@ -1,8 +1,6 @@
 
 # Identity wallet
 
-## Appcenter.ms Build Status
-
 | Platform | Develop | Staging | Main |
 |----------|------------------------------------------------------------------------------------------------|---------|------|
 | Android  | [![Build status](https://build.appcenter.ms/v0.1/apps/2fb2e2de-3e9e-4bdd-b33f-4c9961fa8942/branches/main/badge)](https://appcenter.ms/orgs/Symfoni/apps/SymfoniID-android-develop/build/branches) | Unknown | Unknown |
